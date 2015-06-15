@@ -5,7 +5,6 @@ import itertools
 from maya import cmds
 
 
-
 def get_shading_engines(nodes):
     """ Return the related shadingEngines for given node shapes.
 
@@ -61,6 +60,18 @@ def get_shader_assignment(shapes):
                 assignments[sg].append(member)
 
     return assignments
+
+
+def get_material_from_shading_engine(shading_engine):
+    """ Returns a uniqified list of materials connected to the shadingEngine/shadingGroup """
+    results = cmds.ls(cmds.listConnections(shading_engine) or [], mat=True)
+    return list(set(results))
+
+
+def get_shading_engine_from_material(material):
+    """ Returns a uniqified list of shadingEngines/shadingGroups connected to the material """
+    results = cmds.listConnections(material, type="shadingEngine") or []
+    return list(set(results))
 
 
 def perform_shader_assignment(assignmentDict):
