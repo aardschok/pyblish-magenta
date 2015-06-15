@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNoDefaultShader(pyblish.api.Validator):
+class ValidateAnyShadingEngine(pyblish.api.Validator):
     """ Ensure there's at least one shader to export """
     families = ['lookdev']
     hosts = ['maya']
