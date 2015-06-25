@@ -22,13 +22,12 @@ class SelectModelInstance(pyblish.api.Selector):
     def process(self, context):
         self.log.info("Selecting model..")
 
-        # File Path
-        # ---------
-        scene_name = cmds.file(q=1, sceneName=True)
-        if not scene_name:
-            # file not saved
-            self.log.error("Scene has not been saved.")
-            return
+        #if os.environ.get("FAMILY", None) != 'modeling':
+        #    return
+
+        #root = os.environ.get('project')
+        #asset = os.environ.get('asset')
+        #container = os.environ.get('container')
 
         # Parse with schema
         schema = pyblish_magenta.schema.load()

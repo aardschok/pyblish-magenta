@@ -78,3 +78,68 @@ def perform_shader_assignment(assignmentDict):
     for shadingGroup, members in assignmentDict.iteritems():
         if members:
             cmds.sets(members, e=True, forceElement=shadingGroup)
+
+
+def get_sets_from_nodes(nodes, type=None, exactType=None, excludeType=None, excludeExactType=None, extendToShape=False):
+    """
+        Returns all sets the nodes are included in.
+
+        :param extendToShape:   When requesting a transform's sets also walk down to the shape immediately below it for
+                                its sets.
+        :type  extendToShape:   bool
+
+        :param type:            Return these set types only. (including inherited types)
+        :type  type:            None, list or str
+
+        :param excludeType:      Filter out all sets of this these. (including inherited types)
+        :type  excludeType:      None, list or str
+
+        :param exactType:       Return these set types only.
+        :type  exactType:       None, list or str
+
+        :param excludeExactType: Filter out all sets of this these.
+        :type  excludeExactType: None, list or str
+    """
+    # Make sure we have a list of nodes
+    if not isinstance(nodes, (list, tuple)):
+        if isinstance(nodes, basestring):
+            nodes = [nodes]
+        else:
+            raise TypeError("nodes must be a list or str of object name(s).")
+
+    if excludeType is not None:
+        if not isinstance(excludeType, (list, tuple)):
+            if isinstance(excludeType, basestring):
+                excludeType = (excludeType,)
+            else:
+                raise TypeError("filterType must be a list or str of node type(s) or None.")
+
+    lsKwargs = {}
+    if not type is None:
+        lsKwargs['type'] = type
+    if not exactType is None:
+        lsKwargs['exactType'] = exactType
+
+    lsExcludeKwargs = {}
+    if not excludeType is None:
+        lsExcludeKwargs['type'] = excludeType
+    if not excludeExactType is None:
+        lsExcludeKwargs['exactType'] = excludeExactType
+
+    allSets = set()
+    for node in nodes:
+        sets = cmds.listSets(object=node, ets=extendToShape)
+
+        if sets and type:
+            sets = cmds.ls(sets, **lsKwargs)
+
+        if sets and excludeType:
+            # Preserve sets list order by using list comprehension instead of set(sets).difference()
+            exclude = set(cmds.ls(sets, **lsExcludeKwargs))
+            if exclude:
+                sets = [x for x in sets if x not in exclude]
+
+        if sets:
+            allSets.update(sets)
+
+    return list(allSets)

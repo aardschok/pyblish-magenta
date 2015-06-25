@@ -60,7 +60,9 @@ class SelectLookdevInstance(pyblish.api.Selector):
         asset = data['asset']
         container = data['container']
 
-        # Scene Nodes
+        # region (1) Get the content of the PUBLISH objectSet and all children
+
+        # Explicit nodes
         # --------------
         # Get the PUBLISH objectSet for all materials to be published
         object_set = cmds.ls('PUBLISH', type='objectSet')
@@ -71,6 +73,10 @@ class SelectLookdevInstance(pyblish.api.Selector):
         # Include all children from the `objects`  (extend the list)
         objects.extend(cmds.listRelatives(objects, allDescendents=True, fullPath=True) or [])
         # Replace above line with `mc.ls(sl=1, dag=1, leaf=1, shapes=1, long=True)` to exclude transforms
+
+        # endregion
+
+        # region (2) Get all derived/connected nodes (nodes from shaders and shaders from nodes)
 
         # Get all shading engines (also those from materials)
         shading_engines = set(cmds.ls(objects, type='shadingEngine'))
@@ -87,6 +93,78 @@ class SelectLookdevInstance(pyblish.api.Selector):
             shading_assignments[shading_engine] = shader_assigned_nodes
             assigned_nodes.update(shader_assigned_nodes)
 
+        # endregion
+
+        # region (3) Get related sets (objectSets) from `objects`
+
+        # Get related sets
+        # ----------------
+
+        # Get all sets related to the objects (that are not shadingEngines)
+        object_sets = shader_utils.get_sets_from_nodes(objects, excludeType="shadingEngine")
+
+        # Only allow sets that are NOT referenced! So they need to have been created in the current scene.
+        object_sets = [node for node in object_sets if not cmds.referenceQuery(node, isNodeReferenced=True)]
+        object_sets_members = {}
+        for object_set in object_sets:
+            members = cmds.sets(object_sets, q=1)
+
+            # We can only re-assign members/sets for nodes with objectIds.
+            # So this is only useful for members that have objectIds, thus we keep only those.
+            # members = objectIds.getNodesWithObjectIds(members)
+
+            # If we still have members then we add it to the 'export set with set members` dictionary: `objectSetsMembers`.
+            if members:
+                object_sets_members[object_sets] = members
+
+        # Clean-up so we avoid using it later in the script (avoid confusion)
+        del object_sets   # This is the unfiltered objectSets list. We don't need it anymore, we now have the filtered dict.
+        # endregion
+
+        # region (4) Get UserAttributes from `objects`
+
+        # Get user attributes
+        # -------------------
+
+        # Define valid attribute rules
+        valid_prefix = ["vray", "ai"]
+        invalid_attr = set()  # search `in` often (so optimize by making it a set).
+
+        # Validate attribute function
+        validate_attr = lambda attribute: (any(attribute.startswith(prefixAttr) for prefixAttr in valid_prefix) and
+                                           attribute not in invalid_attr)
+
+        for node in cmds.ls(objects, o=1, long=True):
+            node_attributes = []
+
+            # We only get UserAttributes (UserDefined or FromPlugin)
+            # Get attributes from plug-ins that are in-use (altered from default or changing the current scene)
+            attrs = [attr for attr in cmds.listAttr(node, inUse=True, fromPlugin=True) or [] if validate_attr(attr)]
+            node_attributes.extend(attrs)
+
+            # Get user defined attributes (not created with the node by default)
+            attrs = [attr for attr in cmds.listAttr(node, userDefined=True) or [] if validate_attr(attr)]
+            node_attributes.extend(attrs)
+
+            # If the node we're operating on is referenced then only include attributes that were changed/edited.
+            if cmds.referenceQuery(node, isNodeReferenced=True):
+                reference_node = cmds.referenQuery(node, referenceNode=True)
+
+                reference_edited_attrs = cmds.referenceQuery(reference_node,
+                                                     editNodes=True,
+                                                     editAttrs=True,
+                                                     showDagPath=True,
+                                                     showNamespace=True)
+                if not reference_edited_attrs:
+                    node_attributes = []
+                    continue
+
+                reference_edited_attrs = set(reference_edited_attrs) # optimize for search if x is in it.
+                node_attributes = [x for x in node_attributes if x in reference_edited_attrs]
+        # endregion
+
+        # region (5) Select all referenced `dagNodes` as assets and get each shader and data linked to those objects.
+
         # We will only publish shaders for referenced assets.
         matched = set()
         instances = []
@@ -100,15 +178,16 @@ class SelectLookdevInstance(pyblish.api.Selector):
                 if path in matched:
                     continue
 
-                data, template = schema.parse(path)
+                asset_data, template = schema.parse(path)
+                instances.append(asset_data)
 
-                instances.append(data)
-
-        for data in instances:
+        for asset in instances:
 
             # Create the instance
-            label = "{0} ({1})".format(data['asset'], data['container'])
-            instance = context.create_instance(name=data['asset'],
+            label = "{0} ({1})".format(asset['asset'],
+                                       asset['container'])
+
+            instance = context.create_instance(name=asset['asset'],
                                                label=label,
                                                family='lookdev')
 
@@ -120,9 +199,15 @@ class SelectLookdevInstance(pyblish.api.Selector):
             instance.set_data("asset", asset)
             instance.set_data("container", container)
 
+        # endregion
+
+        self.log.info("Reached end...")
 
 # Reference
 # =========
+
+'''
+export_nodes = set_materials + derived_materials
 
 def select_reference():
     # TODO: Figure out a way to publish lookDev for different assets at the same time. (So publish to location based on
@@ -174,70 +259,9 @@ def select_reference():
     shadingEngines = [sg for sg in shadingEngines if coreShaderUtils.getSetMembers(sg)]
 
     # endregion
+    # keep unique only, and order doesn't matter
+    objects = list(set(objects))
 
-    objects = list(set(objects)) # keep unique only, and order doesn't matter
-    objectsWithIds = objectIds.getNodesWithObjectIds(objects) # keep track of objects that have objectIds (going forward)
-
-    print '-- shadingEngines\n    ', shadingEngines
-    print '-- materials\n    ', materials
-    print '-- objects\n    ', objects
-    print '-- objects with ids\n    ', objectsWithIds
-
-    # region (3) Get related sets
-    # ObjectSets
-    # Get all sets related to the objects (that are not shadingEngines)
-
-    print '-- ObjectSets\n'
-    objectSets = coreShaderUtils.getSetsFromNodes(objects, excludeType="shadingEngine")
-
-    # Only allow sets that are NOT referenced! So they need to have been created in the current scene.
-    objectSets = [node for node in objectSets if not cmds.referenceQuery(node, isNodeReferenced=True)]
-    objectSetsMembers = {}
-    for objectSet in objectSets:
-        members = coreShaderUtils.getSetMembers(objectSet)
-
-        # We can only re-assign members/sets for nodes with objectIds.
-        # So this is only useful for members that have objectIds, thus we keep only those.
-        members = objectIds.getNodesWithObjectIds(members)
-
-        # If we still have members then we add it to the 'export set with set members` dictionary: `objectSetsMembers`.
-        if members:
-            objectSetsMembers[objectSets] = members
-
-    # Clean-up so we avoid using it later in the script (avoid confusion)
-    del objectSets #  This is the unfiltered objectSets list. We don't need it anymore, we now have the filtered dict.
-    # endregion
-
-    # region (??) Get UserAttributes from objects
-    print '-- UserAttributes\n'
-    # We only get UserAttributes (UserDefined or FromPlugin) that start with one of `exportAttrPrefixes` prefixes
-    # and filter attributes that have exact names
-    exportAttrPrefixes = ["vray", "ai"]
-    attributeBlackList = set() # search `in` often (so optimize by making it a set).
-
-    # Validate attribute function
-    validAttr = lambda attr: any(attr.startswith(prefixAttr) for prefixAttr in exportAttrPrefixes) and \
-                             attr not in attributeBlackList
-    for node in cmds.ls(objects, o=1, long=True):
-        nodeAttrs = []
-
-        # Get attributes from plug-ins that are in-use (altered from default value or changing the current scene in some way)
-        attrs = [attr for attr in cmds.listAttr(node, inUse=True, fromPlugin=True) or [] if validAttr(attr)]
-        nodeAttrs.extend(attrs)
-
-        # Get attributes that are user defined (not created with the node by default)
-        attrs = [attr for attr in cmds.listAttr(node, userDefined=True) or [] if validAttr(attr)]
-        nodeAttrs.extend(attrs)
-
-        # If the node we're operating on is referenced then only include attributes that were changed/edited.
-        # So check attribute changes for reference edits! (check referenceEdits)
-        if cmds.referenceQuery(node, isNodeReferenced=True):
-            refNode = referenceUtils.getRefNode(node)
-            refEditedAttrs = cmds.referenceQuery(en=True, editAttrs=True, showDagPath=True, showNamespace=True)
-            if not refEditedAttrs:
-                nodeAttrs = []
-                continue
-
-            refEditedAttrs = set(refEditedAttrs) # optimize for search if x is in it.
-            nodeAttrs = [x for x in nodeAttrs if x in refEditedAttrs]
-    # endregion
+    # keep track of objects that have objectIds (going forward)
+    objectsWithIds = objectIds.getNodesWithObjectIds(objects)
+'''
