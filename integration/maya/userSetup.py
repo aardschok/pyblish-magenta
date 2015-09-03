@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import os
 import maya.mel
+import maya.cmds
 import maya.utils
 
 from PySide.QtGui import QApplication
@@ -13,8 +14,12 @@ try:
     import pyblish_magenta.utils.maya.uuid
     pyblish_magenta.utils.maya.uuid.register_callback()
 
+    import pyblish_magenta.utils.maya.lib
+    maya.utils.executeDeferred(
+        pyblish_magenta.utils.maya.lib.create_menu)
+
 except ImportError as e:
-    print "pyblish_magenta: Could not load kit: %s" % e
+    print("pyblish_magenta: Could not load Magenta: %s" % e)
 
 
 def set_project():
@@ -46,5 +51,39 @@ def distinguish():
     """)
 
 
+def setup_lighting():
+    """Initialise Maya scene for lighting
+
+    NOTE(marcus): This should be made more formal, such as a dedicated
+    click to open a GUI allowing an artist to initialise his scene for
+    the task at hand, such as lighting but also animation and
+    compositing, regardless of host.
+
+    """
+
+    print("Setting up for lighting..")
+    attrs = {
+        "imageFormat": {
+            "value": 32
+        },
+        "imageFilePrefix": {
+            "value": "<Scene>/<Layer>/defaultpass/<Layer>_defaultpass",
+            "type": "string",
+        }
+    }
+
+    for key, data in attrs.iteritems():
+        value = data["value"]
+        kwargs = {}
+        if "type" in data:
+            kwargs["type"] = data["type"]
+
+        print("%s = %s" % (key, value))
+        maya.cmds.setAttr("defaultRenderGlobals.%s" % key, value, **kwargs)
+
+
 set_project()
 maya.utils.executeDeferred(distinguish)
+
+if os.environ.get("TOPICS", "").split()[-1] == "lighting":
+    maya.utils.executeDeferred(setup_lighting)

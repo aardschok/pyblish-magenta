@@ -1,7 +1,9 @@
 from lib import (
-    lsattrs
+    lsattrs,
+    lsattr
 )
 
 __all__ = [
-    "lsattrs"
+    "lsattrs",
+    "lsattr"
 ]

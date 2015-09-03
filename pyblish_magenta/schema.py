@@ -14,5 +14,5 @@ def load():
     """
 
     project = os.environ["PROJECTROOT"]
-    abspath = os.path.join(project, "database", "schema.yaml")
+    abspath = os.path.join(project, "schema.yaml")
     return lucidity.Schema.from_yaml(abspath)
