@@ -66,3 +66,6 @@ class CollectInstances(pyblish.api.Collector):
                 instance.set_data(attr, value=value)
 
             assert instance.has_data("family")
+
+        context[:] = sorted(
+            context, key=lambda instance: instance.data("family"))

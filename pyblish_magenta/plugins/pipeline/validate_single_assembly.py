@@ -17,6 +17,8 @@ class ValidateSingleAssembly(pyblish.api.Validator):
 
     def process(self, instance):
         from maya import cmds
+
+        self.log.info("Looking for assemblies in %s" % "\n".join(instance))
         assemblies = cmds.ls(instance, assemblies=True)
 
         assert len(assemblies) > 0, (

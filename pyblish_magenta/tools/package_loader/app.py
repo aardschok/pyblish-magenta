@@ -8,7 +8,7 @@ from PySide import QtGui
 import lib
 
 
-class Window(QtGui.QWidget):
+class Window(QtGui.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.setWindowTitle("Package Loader")
@@ -93,6 +93,7 @@ class Window(QtGui.QWidget):
         package = self._packages[self.list1.currentItem().text()]
         version = package["versions"][self.list2.currentItem().text()]
         lib.load_package(version)
+        self.close()
 
     def on_refresh(self):
         self.refresh(self._root)
@@ -126,7 +127,15 @@ class Window(QtGui.QWidget):
 
 def show(topic, root):
     self = sys.modules[__name__]
-    self.window = Window()
+
+    try:
+        widgets = QtGui.QApplication.topLevelWidgets()
+        widgets = dict((w.objectName(), w) for w in widgets)
+        parent = widgets['MayaWindow']
+    except KeyError:
+        parent = None
+
+    self.window = Window(parent)
     self.window.refresh(topic, root)
     self.window.show()
 

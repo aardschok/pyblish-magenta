@@ -10,8 +10,7 @@ class CollectMetadata(pyblish.api.Collector):
 
     def process(self, context):
         metadata = {
-            "project": os.environ["PROJECT"],
-            "task": os.environ["TOPICS"].split()[-1],
+            "topic": os.environ["TOPICS"],
             "author": context.data("user"),
             "date": context.data("date"),
             "filename": context.data("currentFile").replace(

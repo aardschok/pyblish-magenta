@@ -11,10 +11,10 @@ self = sys.modules[__name__]
 self._window = None
 
 
-class Window(QtGui.QWidget):
+class Window(QtGui.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
-        self.setWindowTitle("Package Loader")
+        self.setWindowTitle("Asset Loader")
         self.setFixedSize(600, 250)
 
         self._root = None
@@ -44,6 +44,16 @@ class Window(QtGui.QWidget):
         layout.addWidget(list4)
         layout.setContentsMargins(0, 0, 0, 0)
 
+        options = QtGui.QWidget()
+
+        closeonload_chk = QtGui.QCheckBox()
+        closeonload_lbl = QtGui.QLabel("Close on load")
+        closeonload_chk.setCheckState(QtCore.Qt.Checked)
+        layout = QtGui.QGridLayout(options)
+        layout.addWidget(closeonload_chk, 0, 0)
+        layout.addWidget(closeonload_lbl, 0, 1)
+        layout.setContentsMargins(0, 0, 0, 0)
+
         path = QtGui.QLineEdit()
         path.setReadOnly(True)
         btn_load = QtGui.QPushButton("Load")
@@ -60,6 +70,7 @@ class Window(QtGui.QWidget):
         layout = QtGui.QVBoxLayout(self)
         layout.addWidget(header)
         layout.addWidget(body)
+        layout.addWidget(options, 0, QtCore.Qt.AlignRight)
         layout.addWidget(footer)
         layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(10)
@@ -72,6 +83,7 @@ class Window(QtGui.QWidget):
         self.label1 = label1
         self.btn_load = btn_load
         self.btn_refresh = btn_refresh
+        self.closeonload_chk = closeonload_chk
 
         btn_load.clicked.connect(self.on_load)
         btn_refresh.clicked.connect(self.on_refresh)
@@ -86,6 +98,9 @@ class Window(QtGui.QWidget):
         item = self.list4.currentItem()
         root = item.data(QtCore.Qt.UserRole + 1)
         lib.load(root)
+
+        if self.closeonload_chk.checkState():
+            self.close()
 
     def refresh(self, topic, root, representation):
         project = cquery.first_match(root,
@@ -195,7 +210,7 @@ class Window(QtGui.QWidget):
 
         if no_items:
             item = QtGui.QListWidgetItem("No items")
-            self.list3.addItem(item)
+            self.list4.addItem(item)
 
     def on_list4changed(self, current, previous):
         if not self.list4.currentItem():
@@ -218,7 +233,14 @@ def show(topic, root, representation):
 
     root = os.path.realpath(root)
 
-    window = Window()
+    try:
+        widgets = QtGui.QApplication.topLevelWidgets()
+        widgets = dict((w.objectName(), w) for w in widgets)
+        parent = widgets['MayaWindow']
+    except KeyError:
+        parent = None
+
+    window = Window(parent)
     window.show()
     window.refresh(topic, root, representation)
 

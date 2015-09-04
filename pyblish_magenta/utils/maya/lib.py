@@ -7,7 +7,7 @@ import maya.cmds as cmds
 import pyblish_magenta.schema
 import pyblish_magenta.tools
 
-import cquery
+from pyblish_magenta.vendor import cquery
 
 
 def lsattr(attr, value=None):
@@ -106,6 +106,10 @@ def create_menu():
     def look_loader(*_):
         pass
 
+    def instance_creator(*_):
+        import pyblish_magenta.tools.instance_creator
+        pyblish_magenta.tools.instance_creator.show()
+
     def asset_loader(*_):
         import pyblish_magenta.tools.asset_loader
         root = cmds.workspace(active=True, query=True)
@@ -120,11 +124,12 @@ def create_menu():
                               selector=".Asset",
                               direction=cquery.UP)
 
-    cmds.menuItem(label="Load Asset", command=asset_loader)
+    cmds.menuItem(label="Asset Browser", command=asset_loader)
+    cmds.menuItem(label="Instance Creator", command=instance_creator)
 
     if cquery.has_class(item, ".Shot"):
-        cmds.menuItem(label="Load Package", command=package_loader)
-        cmds.menuItem(label="Load Look", command=look_loader)
+        cmds.menuItem(label="Package Browser", command=package_loader)
+        cmds.menuItem(label="Look Browser", command=look_loader)
 
 
 def lookdev_link():

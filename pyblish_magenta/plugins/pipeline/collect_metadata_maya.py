@@ -34,6 +34,7 @@ class CollectMetadataMaya(pyblish.api.Collector):
                 continue
 
             references[filename] = {
+                "node": reference,
                 "filename": filename.replace(
                     os.environ["PROJECTROOT"], "$PROJECTROOT"),
                 "topic": os.environ.get("TOPICS")
@@ -42,5 +43,16 @@ class CollectMetadataMaya(pyblish.api.Collector):
             self.log.info("Collecting %s" % references[filename])
 
         for instance in context:
-            metadata = instance.data("metadata", {})
+            userattrs = dict()
+            for attr in cmds.listAttr(instance.id, userDefined=True):
+                try:
+                    value = cmds.getAttr(instance.id + "." + attr)
+                except RuntimeError:
+                    continue
+
+                userattrs[attr] = value
+
+            metadata = instance.data("metadata")
+            assert metadata
             metadata["references"] = references.values()
+            metadata["userattrs"] = userattrs
