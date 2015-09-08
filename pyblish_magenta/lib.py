@@ -1,8 +1,9 @@
 import os
 import re
+
 import pyblish.api
 
-from . import plugins
+from . import plugins, schema
 
 
 PLUGINS_PATH = os.path.dirname(plugins.__file__)
@@ -65,7 +66,7 @@ def format_version(version):
     return "v%03d" % version
 
 
-for subdir in ("collectors", "extractors", "validators", "integrators"):
+for subdir in ("workflow", "pipeline"):
     PLUGIN_PATHS.append(os.path.join(PLUGINS_PATH, subdir))
 
 
@@ -87,3 +88,19 @@ def deregister_plugins():
         pyblish.api.deregister_plugin_path(path)
 
     print("pyblish_magenta: Deregistered plug-ins")
+
+
+def compute_publish_directory(path):
+    """Given the current file, determine where to publish
+
+    Arguments:
+        path (str): Absolute path to the current working file
+
+    """
+
+    schema_ = schema.load()
+    data, template = schema_.parse(path)
+    template = schema_.get(template.name.rsplit(
+        ".work", 1)[0] + ".publish")
+
+    return template.format(data)

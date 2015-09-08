@@ -5,6 +5,9 @@ import maya.api.OpenMaya as om
 import maya.cmds as cmds
 
 import pyblish_magenta.schema
+import pyblish_magenta.tools
+
+from pyblish_magenta.vendor import cquery
 
 
 def lsattr(attr, value=None):
@@ -79,6 +82,54 @@ def lsattrs(attrs):
             matches.update(full_path_names)
 
     return list(matches)
+
+
+def create_menu():
+    try:
+        cmds.deleteUI("_magentaMenu")
+    except:
+        pass
+
+    cmds.menu("_magentaMenu",
+              label="Magenta",
+              tearOff=True,
+              parent="MayaWindow")
+
+    def package_loader(*_):
+        import pyblish_magenta.tools.package_loader
+        root = cmds.workspace(active=True, query=True)
+        topic = os.environ.get("TOPICS")
+        if not topic:
+            raise Exception("No topic entered")
+        pyblish_magenta.tools.package_loader.show(topic, root)
+
+    def look_loader(*_):
+        pass
+
+    def instance_creator(*_):
+        import pyblish_magenta.tools.instance_creator
+        pyblish_magenta.tools.instance_creator.show()
+
+    def asset_loader(*_):
+        import pyblish_magenta.tools.asset_loader
+        root = cmds.workspace(active=True, query=True)
+        topic = os.environ["TOPICS"]
+        if not topic:
+            raise Exception("No topic entered")
+        pyblish_magenta.tools.asset_loader.show(
+            topic, root, representation=".ma")
+
+    root = cmds.workspace(active=True, query=True)
+    item = cquery.first_match(root,
+                              selector=".Asset",
+                              direction=cquery.UP)
+
+    cmds.menuItem(label="Asset Browser", command=asset_loader)
+    cmds.menuItem(label="Instance Creator", command=instance_creator)
+
+    if cquery.has_class(item, ".Shot"):
+        cmds.menuItem(label="Package Browser", command=package_loader)
+        cmds.menuItem(label="Look Browser", command=look_loader)
 
 
 def lookdev_link():

@@ -4,6 +4,7 @@ from .lib import (
     deregister_plugins,
     find_next_version,
     format_version,
+    compute_publish_directory,
 )
 
 from .plugin import (
@@ -23,6 +24,7 @@ __all__ = [
     "deregister_plugins",
     "find_next_version",
     "format_version",
+    "compute_publish_directory",
 
     "Extractor",
 
