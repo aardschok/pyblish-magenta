@@ -31,14 +31,20 @@ class Window(QtGui.QDialog):
         list1 = QtGui.QListWidget()
 
         options = QtGui.QWidget()
+        layout = QtGui.QGridLayout(options)
+        layout.setContentsMargins(0, 0, 0, 0)
 
         useselection_chk = QtGui.QCheckBox()
         useselection_lbl = QtGui.QLabel("Use selection")
         useselection_chk.setCheckState(QtCore.Qt.Checked)
-        layout = QtGui.QGridLayout(options)
         layout.addWidget(useselection_chk, 0, 0)
         layout.addWidget(useselection_lbl, 0, 1)
-        layout.setContentsMargins(0, 0, 0, 0)
+
+        autoclose_chk = QtGui.QCheckBox()
+        autoclose_lbl = QtGui.QLabel("Close after creation")
+        autoclose_chk.setCheckState(QtCore.Qt.Checked)
+        layout.addWidget(autoclose_chk, 1, 0)
+        layout.addWidget(autoclose_lbl, 1, 1)
 
         layout = QtGui.QVBoxLayout(body)
         layout.addWidget(options, 0, QtCore.Qt.AlignLeft)
@@ -53,6 +59,7 @@ class Window(QtGui.QDialog):
         self.name_fld = name_fld
         self.list1 = list1
         self.useselection_chk = useselection_chk
+        self.autoclose_chk = autoclose_chk
 
         create_btn.clicked.connect(self.on_create)
         name_fld.textChanged.connect(self.on_namechanged)
@@ -74,7 +81,9 @@ class Window(QtGui.QDialog):
         family = self.list1.currentItem().text()
         use_selection = self.useselection_chk.checkState()
         lib.create(name, family, use_selection)
-        self.close()
+
+        if self.autoclose_chk.checkState():
+            self.close()
 
     def on_namechanged(self, name):
         if name:
