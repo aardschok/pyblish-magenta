@@ -44,8 +44,9 @@ def is_visible(node, displayLayer=True, intermediateObject=True, parentHidden=Tr
                 return False
 
     if parentHidden:
-        parent = cmds.listRelatives(node, parent=True)[0]
-        if parent:
+        parents = cmds.listRelatives(node, parent=True, fullPath=True)
+        if parents:
+            parent = parents[0]
             if not is_visible(parent,
                               displayLayer=displayLayer,
                               intermediateObject=False,
