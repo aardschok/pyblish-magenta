@@ -66,7 +66,7 @@ class Window(QtGui.QDialog):
         name_fld.returnPressed.connect(self.on_create)
 
     def refresh(self):
-        for family, defaults in lib.families.iteritems():
+        for family, defaults in sorted(lib.families.iteritems()):
             item = QtGui.QListWidgetItem(family)
             self.list1.addItem(item)
 
