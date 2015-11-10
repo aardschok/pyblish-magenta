@@ -2,7 +2,7 @@ import os
 import json
 
 import pyblish.api
-from pyblish_magenta.vendor import cquery
+import cquery
 from pyblish_magenta.api import (
     format_version,
     compute_publish_directory,

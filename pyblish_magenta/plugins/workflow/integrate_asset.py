@@ -3,7 +3,7 @@ import shutil
 
 import pyblish.api
 import pyblish_magenta.api
-from pyblish_magenta.vendor import cquery
+import cquery
 
 
 class IntegrateAssets(pyblish.api.Integrator):
@@ -74,8 +74,17 @@ class IntegrateAssets(pyblish.api.Integrator):
                 except OSError:
                     pass
 
-                _, ext = os.path.splitext(fname)
-                filename = name + ext
+                fname_no_ext, ext = os.path.splitext(fname)
+
+                # Check if the output file should preserve a suffix identifier
+                # to separate files with similar extension. We separate by
+                # double underscore. (eg. `__gpuCache`)
+                type_id = ""
+                identifier_split = fname_no_ext.rsplit("__", 1)
+                if len(identifier_split) == 2:
+                    type_id = '_' + identifier_split[-1]
+
+                filename = name + type_id +  ext
 
                 abs_dst = os.path.join(dst, filename)
                 self.log.info("Copying file \"%s\" to \"%s\"" % (abs_src, dst))

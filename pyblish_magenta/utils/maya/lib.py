@@ -7,8 +7,6 @@ import maya.cmds as cmds
 import pyblish_magenta.schema
 import pyblish_magenta.tools
 
-from pyblish_magenta.vendor import cquery
-
 
 def lsattr(attr, value=None):
     """Return nodes matching `key` and `value`
@@ -85,6 +83,9 @@ def lsattrs(attrs):
 
 
 def create_menu():
+
+    import cquery
+
     try:
         cmds.deleteUI("_magentaMenu")
     except:
