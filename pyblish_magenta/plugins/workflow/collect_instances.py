@@ -51,19 +51,25 @@ class CollectInstances(pyblish.api.Collector):
                                   force=True)
 
                 nodes = cmds.ls(nodes, long=True)
-                self.log.info("Collecting %s" % nodes)
+                self.log.debug("Collecting %s" % nodes)
                 instance[:] = nodes
 
                 # Maintain original contents of object set
                 instance.set_data("setMembers", members)
 
+            # Get user data from user defined attributes
+            user_data = []
             for attr in cmds.listAttr(objset, userDefined=True):
                 try:
                     value = cmds.getAttr(objset + "." + attr)
+                    user_data.append((attr, value))
                 except RuntimeError:
                     continue
 
-                instance.set_data(attr, value=value)
+            # Assign user data to the instance
+            self.log.debug("Collected user data: {0}".format(user_data))
+            for key, value in user_data:
+                instance.set_data(key, value=value)
 
             assert instance.has_data("family")
 
