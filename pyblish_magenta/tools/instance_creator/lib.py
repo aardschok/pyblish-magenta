@@ -4,6 +4,8 @@ from pyblish_magenta.vendor import inflection
 
 # (key, value, help)
 defaults = [
+    ("publish", lambda name, family: True,
+        "The active state of the instance"),
     ("name", lambda name, family: name,
         "Name of instance"),
     ("family", lambda name, family: family,
@@ -43,7 +45,7 @@ def create(name, family, use_selection=False):
 attributes = {
     "publish": {
         "add": {"attributeType": "bool"},
-        "set": {}
+        "set": {"keyable": False, "channelBox": True}
     },
     "family": {
         "add": {"dataType": "string"},
