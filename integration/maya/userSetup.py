@@ -11,8 +11,8 @@ try:
     import pyblish_magenta.api
     pyblish_magenta.api.setup()
 
-    import pyblish_magenta.utils.maya.uuid
-    pyblish_magenta.utils.maya.uuid.register_callback()
+    import pyblish_magenta.utils.maya.node_uuid
+    pyblish_magenta.utils.maya.node_uuid.register_callback()
 
     import pyblish_magenta.utils.maya.lib
     maya.utils.executeDeferred(
