@@ -10,7 +10,7 @@ class ValidateNoUnknownNodes(pyblish.api.Validator):
 
     """
 
-    families = ['model', 'layout']
+    families = ['model', 'layout', 'rig']
     hosts = ['maya']
     category = 'cleanup'
     optional = True

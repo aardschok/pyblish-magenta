@@ -1,7 +1,7 @@
 import os
 import json
 
-import pyblish_magenta.plugin
+import pyblish_magenta.api
 
 
 class ExtractShaderLinks(pyblish_magenta.api.Extractor):

@@ -1,7 +1,7 @@
 import os
 
 import pyblish_maya
-import pyblish_magenta.plugin
+import pyblish_magenta.api
 
 
 class ExtractMayaAscii(pyblish_magenta.api.Extractor):

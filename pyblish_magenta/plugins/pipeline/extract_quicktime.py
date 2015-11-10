@@ -1,7 +1,7 @@
 import os
 
 import pyblish.api
-import pyblish_magenta.plugin
+import pyblish_magenta.api
 from pyblish_magenta.vendor import capture
 
 from maya import cmds
