@@ -30,6 +30,10 @@ families = {
 
 
 def create(name, family, use_selection=False):
+
+    if not family in families:
+        raise RuntimeError("{0} is not a valid family".format(family))
+
     if not use_selection:
         cmds.select(deselect=True)
 
@@ -40,6 +44,8 @@ def create(name, family, use_selection=False):
         cmds.setAttr(instance + "." + key,
                      value(name, family),
                      **attributes[key]["set"])
+
+    return instance
 
 
 attributes = {
