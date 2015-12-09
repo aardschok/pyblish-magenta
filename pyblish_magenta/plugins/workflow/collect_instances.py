@@ -1,6 +1,26 @@
 import pyblish.api
 import pyblish_maya
 
+def get_upstream_hierarchy_fast(nodes):
+    """Passed in nodes must be long names!"""
+
+    matched = set()
+    parents = []
+
+    for node in nodes:
+        hierarchy = node.split("|")
+        num = len(hierarchy)
+        for x in range(1, num-1):
+            parent = "|".join(hierarchy[:num-x])
+            if parent in parents:
+                break
+            else:
+                parents.append(parent)
+                matched.add(parent)
+
+    return parents
+
+
 
 class CollectInstances(pyblish.api.Collector):
     """Collect instances from the Maya scene
@@ -14,6 +34,7 @@ class CollectInstances(pyblish.api.Collector):
     """
 
     hosts = ["maya"]
+    verbose = False
 
     def process(self, context):
         from maya import cmds
@@ -30,9 +51,9 @@ class CollectInstances(pyblish.api.Collector):
                 raise Exception("Found: %s found, but no family." % objset)
 
             instance = context.create_instance(objset)
-
+            short_name = objset.rsplit("|", 1)[-1].rsplit(":", 1)[-1]
             for key, default in {
-                    "name": cmds.ls(objset, long=False)[0][:-5],
+                    "name": short_name[:-5],
                     "subset": "default"
                     }.iteritems():
                 instance.set_data(key, default)
@@ -43,15 +64,27 @@ class CollectInstances(pyblish.api.Collector):
 
                 # Maintain nested object sets
                 members = cmds.sets(objset, query=True)
-                cmds.select(members, noExpand=True)
+                members = cmds.ls(members, long=True)
 
-                nodes = cmds.file(exportSelected=True,
-                                  preview=True,
-                                  constructionHistory=True,
-                                  force=True)
+                # Include all parents and children
+                parents = cmds.listRelatives(members,
+                                             allDescendents=True,
+                                             fullPath=True,
+                                             noIntermediate=True) or []
 
-                nodes = cmds.ls(nodes, long=True)
-                self.log.debug("Collecting %s" % nodes)
+                # Include all children
+                children = get_upstream_hierarchy_fast(members)
+
+                nodes = members + parents + children
+
+                # Include all history
+                # TODO: Enable inclusion of history?
+                #history = cmds.listHistory(nodes,
+                #                           leaf=False) or []
+                #nodes += history
+
+                if self.verbose:
+                    self.log.debug("Collecting nodes: %s" % nodes)
                 instance[:] = nodes
 
                 # Maintain original contents of object set
@@ -66,8 +99,10 @@ class CollectInstances(pyblish.api.Collector):
                 except RuntimeError:
                     continue
 
+            if self.verbose:
+                self.log.debug("Collected user data: {0}".format(user_data))
+
             # Assign user data to the instance
-            self.log.debug("Collected user data: {0}".format(user_data))
             for key, value in user_data:
                 instance.set_data(key, value=value)
 
