@@ -3,7 +3,7 @@ import json
 import contextlib
 
 import pyblish_maya
-import pyblish_magenta.plugin
+import pyblish_magenta.api
 
 from maya import cmds
 
@@ -57,7 +57,7 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
     """
 
     label = "Alembic"
-    families = ["pointcache"]
+    families = ["pointcache", "proxy"]
     optional = True
 
     @property
@@ -121,7 +121,8 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
         end_frame += handles
 
         return {
-            "frameRange": "%s %s" % (start_frame, end_frame),
+            "startFrame": start_frame,
+            "endFrame": end_frame,
             "selection": True,
             "uvWrite": True,
             "eulerFilter": True,
@@ -141,8 +142,6 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
 
         # Alembic Exporter requires forward slashes
         path = path.replace('\\', '/')
-
-        self.log.info("Extracting alembic to: {0}".format(path))
 
         options = self.default_options
         options["userAttr"] = ("uuid",)
