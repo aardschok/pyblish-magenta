@@ -3,7 +3,7 @@ import re
 
 import pyblish.api
 
-from . import plugins, schema
+from . import plugins
 
 
 PLUGINS_PATH = os.path.dirname(plugins.__file__)
@@ -97,10 +97,5 @@ def compute_publish_directory(path):
         path (str): Absolute path to the current working file
 
     """
-
-    schema_ = schema.load()
-    data, template = schema_.parse(path)
-    template = schema_.get(template.name.rsplit(
-        ".work", 1)[0] + ".publish")
-
-    return template.format(data)
+    # TODO: Implement compute publish directory
+    return ""

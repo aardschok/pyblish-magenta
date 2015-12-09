@@ -1,5 +1,6 @@
 from maya import cmds
 from pyblish_magenta.vendor import inflection
+import sys
 
 
 # (key, value, help)
@@ -25,7 +26,11 @@ families = {
     "rig": [],
     "look": [],
     "pointcache": [],
-    "animation": []
+    "animation": [],
+    "threejs": [],      # Export models, shaders, textures to three.JS json format
+    "vraybake": [],     # Bake textures with v-ray for objects
+    "proxy": [],        # (Animated) Proxies that go to Alembic + gpuCache with objectIds
+    "vrmeshReplace": []   # Replaced gpuCaches to vrmesh -> is simple .ma file
 }
 
 

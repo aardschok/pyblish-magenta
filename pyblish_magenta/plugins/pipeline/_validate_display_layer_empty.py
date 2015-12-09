@@ -32,6 +32,11 @@ class ValidateDisplayLayerEmpty(pyblish.api.Validator):
             if layer in self.__skip_layers:
                 continue
 
+            # Skip those that are referenced
+            # TODO: Do we really want to skip those that are referened?
+            if cmds.referenceQuery(layer, isNodeReferenced=True):
+                continue
+
             members = cmds.editDisplayLayerMembers(layer, q=1)
             if not members:
                 empty.append(layer)
