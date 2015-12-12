@@ -8,9 +8,13 @@ class ValidateMeshNoNegativeScale(pyblish.api.Validator):
     Using the negatively scaled proxies in a VRayMesh results in inverted
     normals. As such we want to avoid this.
 
+    We also avoid this on the rig or model because these are often the
+    previous steps for those that are cached to proxies so we can catch this
+    issue early.
+
     """
 
-    families = ['proxy']
+    families = ['proxy', 'rig', 'model']
     hosts = ['maya']
     label = 'Mesh No Negative Scale'
 
