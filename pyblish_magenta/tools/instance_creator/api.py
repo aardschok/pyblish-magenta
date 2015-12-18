@@ -1,5 +1,4 @@
-from . import lib
-
-
-def register_family(family, defaults, description=None):
-    lib.families[family] = defaults
+from .lib import (
+    register_default,
+    register_family
+)

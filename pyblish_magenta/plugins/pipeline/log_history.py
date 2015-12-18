@@ -50,7 +50,11 @@ class LogHistory(pyblish.api.Validator):
         basename = os.path.basename(context.data["currentFile"])
         name, _ = os.path.splitext(basename)
         fname = "%s.%s.txt" % (time, name)
-        path = os.path.expanduser("~/logs/%s" % fname)
+        dirname = os.path.expanduser("~/logs")
+        path = os.path.join(dirname, fname)
+
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
 
         with open(path, "w") as f:
             f.write(output)

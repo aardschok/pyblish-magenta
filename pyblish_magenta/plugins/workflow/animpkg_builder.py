@@ -1,13 +1,25 @@
 import os
 import json
 
-import pyblish.api
 import cquery
+import pyblish.api
 from pyblish_magenta.api import (
     format_version,
-    compute_publish_directory,
     find_next_version
 )
+
+conversions = {
+    'animation': 'film',
+    'comp': 'film',
+    'lighting': 'film',
+    'fx': 'film',
+    'grooming': 'assets',
+    'lookDev': 'assets',
+    'modeling': 'assets',
+    'rigging': 'assets',
+    'editing': 'edit',  # unused?
+    'audio': 'audio',  # unused?
+}
 
 
 class BuildAnimPkg(pyblish.api.Plugin):
@@ -20,23 +32,31 @@ class BuildAnimPkg(pyblish.api.Plugin):
     order = pyblish.api.Integrator.order + 1
 
     destination_template = "{publish}/{subset}/{version}"
-    filename_template = "{topic}_{subset}_{version}_{instance}"
+    filename_template = "{subset}_{version}_{instance}"
 
     def process(self, context, instance):
-        published_instances = [i.id for i in context if i.data("published")]
-        animation_instances = [context[i] for i in instance
-                               if i in published_instances]
+        # Instances with an integration dir is assumed to have been published.
+        all_published_instances = [i.id
+                                   for i in context
+                                   if "integrationDir" in i.data]
 
-        assert animation_instances, "No new animation was published"
+        # Convert string to Instance object from context.
+        all_animation_instances = [context[i]
+                                   for i in all_published_instances]
+
+        # Only produce package if at least 1 new animation was published.
+        if not all_animation_instances:
+            return self.log.warning("No new animation was published")
 
         self.log.info("Looking for %s" % list(instance))
-        self.log.info("Published instances: %s" % published_instances)
+        self.log.info("Published instances: %s" % all_published_instances)
         self.log.info("Building animation "
-                      "package from %s" % animation_instances)
+                      "package from %s" % all_animation_instances)
 
-        publish_dir = compute_publish_directory(
-            context.data("currentFile").replace("\\", "/"))
-        animpkg_dir = os.path.join(publish_dir, "animPkg")
+        data = context.data["currentAssetInfo"].copy()
+
+        packages_dir = os.path.join(data["asset"], ".packages")
+        animpkg_dir = os.path.join(packages_dir, "animPkg")
 
         self.log.info("animPkg located at: %s" % animpkg_dir)
 
@@ -62,9 +82,16 @@ class BuildAnimPkg(pyblish.api.Plugin):
                 package = json.load(f)
 
         self.log.info("Using package data: %s" % package)
-        for i in animation_instances:
-            s = i.data("subset")
-            v = i.data("integrationVersion")
+
+        # Produce package
+        # {
+        #  "animation Bluey01": "v009",
+        #  "animation Mom01": "v006"
+        # }
+        #
+        for i in all_animation_instances:
+            s = i.data["subset"]
+            v = i.data["integrationVersion"]
             package[s] = format_version(v)
 
         self.log.info("New animPkg: %s" % package)
@@ -72,33 +99,26 @@ class BuildAnimPkg(pyblish.api.Plugin):
         version = find_next_version(animpkg_versions)
 
         dst = self.destination_template.format(**{
-            "publish": publish_dir,
-            "subset": instance.data("subset"),
+            "publish": packages_dir,
+            "subset": instance.data["subset"],
             "version": format_version(version),
         }).replace("/", os.sep)
 
-        topic = "_".join(os.environ["TOPICS"].split())
         name = self.filename_template.format(**{
-            "topic": topic,
-            "subset": instance.data("subset"),
+            "subset": instance.data["subset"],
             "version": format_version(version),
-            "instance": instance.data("name")
+            "instance": instance.data["name"]
         })
 
         try:
             os.makedirs(dst)
-        except OSError:
+        except OSError as e:
             self.log.warning("Tried creating %s but failed" % dst)
+            raise e
 
         self.log.info("Writing new package to: %s" % dst)
         with open(os.path.join(dst, name) + ".pkg", "w") as f:
             json.dump(package, f, indent=2, sort_keys=True)
-
-        self.log.info("Writing metadata to: %s" % dst)
-        with open(os.path.join(dst, name) + ".meta", "w") as f:
-            metadata = instance.data("metadata")
-            self.log.info("Metadata: %s" % metadata)
-            json.dump(metadata, f, indent=2, sort_keys=True)
 
         cquery.tag(dst, ".Version")
 

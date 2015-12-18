@@ -1,122 +1,104 @@
 import os
 import shutil
-
-import pyblish.api
-import pyblish_magenta.api
 import cquery
+import pyblish.api
+import pyblish.util
+import pyblish_magenta.api
 
 
 class IntegrateAssets(pyblish.api.Integrator):
-    """Name and position instances on disk for shots"""
+    """Name and position instances on disk for shots
+
+    Assumptions:
+        - Each extracted instance is 1 file (no directories)
+
+    """
 
     label = "Assets"
-    families = ["model", "rig", "pointcache"]
-
-    destination_template = "{publish}/{subset}/{version}"
-    filename_template = "{topic}_{subset}_{version}_{instance}"
+    families = ["model", "rig", "pointcache", "proxy", "vrmeshReplace"]
 
     def process(self, context, instance):
-        if not instance.data("extractDir"):
-            return self.log.debug("Skipping %s; no files found" % instance)
+        self.log.info("Integrating..")
 
-        self.log.debug("Source file: %s" % context.data("currentFile"))
-
-        current_file = context.data("currentFile").replace("\\", "/")
-        publish_dir = pyblish_magenta.api.compute_publish_directory(
-            current_file)
-
-        subset = instance.data("subset") or "default"
-
-        # Compute version of this subset
-        current_subsets = context.data("__currentSubsets__", {})
-
-        subset_dir = "{publish}/{subset}".format(**{
-            "publish": publish_dir,
-            "subset": subset
-        }).replace("/", os.sep)
-
-        if subset in current_subsets:
-            version = current_subsets[subset]
-        else:
-            version = self.compute_next_version(subset_dir)
-
-        current_subsets[subset] = version
-        context.set_data("__currentSubsets__", current_subsets)
-
-        src = instance.data("extractDir")
-        dst = self.destination_template.format(**{
-            "publish": publish_dir,
-            "subset": subset,
-            "version": pyblish_magenta.api.format_version(version),
-        }).replace("/", os.sep)
-
-        self.log.info("Integrating %s -> %s" % (src, dst))
-
-        topic = "_".join(os.environ["TOPICS"].split())
-        name = self.filename_template.format(**{
-            "topic": topic,
-            "subset": subset,
-            "version": pyblish_magenta.api.format_version(version),
-            "instance": instance.data("name")
+        # New-style
+        data = context.data["currentAssetInfo"]
+        data.update({
+            "subset": instance.data.get("subset", "default"),
+            "instance": instance.data["name"]
         })
 
+        path = os.sep.join((
+            "{asset}",
+            "publish",
+            "{subset}")).format(**data)
+
+        self.log.debug("Using new-style folder structure")
+
+        # Ensure unique version
         try:
-            os.makedirs(subset_dir)
-        except OSError:
-            pass
+            versions = os.listdir(path)
+        except:
+            versions = []
 
-        for fname in os.listdir(src):
-            abs_src = os.path.join(src, fname)
+        next_version = pyblish_magenta.api.find_next_version(versions)
+        path = os.path.join(
+            path, pyblish_magenta.api.format_version(next_version))
 
-            if os.path.isfile(abs_src):
+        # Store reference for upcoming plug-ins
+        instance.data["integrationDir"] = path
+        instance.data["integrationVersion"] = next_version  # 001
+        data["version"] = pyblish_magenta.api.format_version(next_version)
+
+        try:
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            self.log.info("Moving files to %s" % path)
+
+            tmp = instance.data["extractDir"]
+            for src in (os.path.join(tmp, f) for f in os.listdir(tmp)):
+
+                # TODO(marcus): Consider files without extension
+                self.log.warning("integrating %s" % src)
+                data["ext"] = src.split(".", 1)[-1]
+                data["assetName"] = os.path.basename(data["asset"])
+                data["taskName"] = os.path.basename(data["task"])
+
+                # Subset may contain subdirectories
+                data["subsetName"] = data["subset"].replace("/", "_")
+
+                dst = os.path.join(path, "{assetName}_"
+                                         "{taskName}_"
+                                         "{subsetName}_"
+                                         "{instance}_"
+                                         "{version}.{ext}".format(
+                                            **data))
+                self.log.info("\"%s\" -> \"%s\"" % (src, dst))
+                shutil.copyfile(src, dst)
+
+            cquery.tag(path, ".Version")
+            self.log.debug("Tagged %s with .Version" % path)
+
+            try:
+                subset_path = os.path.dirname(path)
+                cquery.tag(subset_path, ".Subset")
+                self.log.debug("Tagged %s with .Subset" % subset_path)
+            except cquery.TagExists:
+                pass
+
+        except OSError as e:
+            # If, for whatever reason, this instance did not get written.
+            instance.data.pop("integrationDir")
+            raise e
+
+        except Exception as e:
+            raise Exception("An unknown error occured: %s" % e)
+
+        finally:
+            # Backwards compatibility
+            for key, selector in {"asset": ".Asset",
+                                  "task": ".Task"}.iteritems():
                 try:
-                    os.makedirs(dst)
-                except OSError:
+                    cquery.tag(data[key], selector)
+                except:
                     pass
-
-                fname_no_ext, ext = os.path.splitext(fname)
-
-                # Check if the output file should preserve a suffix identifier
-                # to separate files with similar extension. We separate by
-                # double underscore. (eg. `__gpuCache`)
-                type_id = ""
-                identifier_split = fname_no_ext.rsplit("__", 1)
-                if len(identifier_split) == 2:
-                    type_id = '_' + identifier_split[-1]
-
-                filename = name + type_id +  ext
-
-                abs_dst = os.path.join(dst, filename)
-                self.log.info("Copying file \"%s\" to \"%s\"" % (abs_src, dst))
-                shutil.copy(abs_src, abs_dst)
-
-            elif os.path.isdir(abs_src):
-                abs_dst = os.path.join(dst, name, fname)
-                self.log.info("Copying directory \"%s\" to \"%s\""
-                              % (abs_src, abs_dst))
-                shutil.copytree(abs_src, abs_dst)
-
-            else:
-                raise Exception("%s is not a valid path" % src)
-
-        # Store reference for further integration
-        instance.set_data("published", True)
-        instance.set_data("integrationVersion", version)
-        instance.set_data("integrationDir", dst)
-
-        cquery.tag(dst, ".Version")
-        try:
-            cquery.tag(subset_dir, ".Subset")
-        except cquery.TagExists:
-            self.log.warning("%s already tagged" % subset_dir)
-
-        self.log.info("Integrated to directory \"{0}\"".format(dst))
-
-    def compute_next_version(self, versions_dir):
-        try:
-            existing_versions = os.listdir(versions_dir)
-            version = pyblish_magenta.api.find_next_version(existing_versions)
-        except OSError:
-            version = 1
-
-        return version

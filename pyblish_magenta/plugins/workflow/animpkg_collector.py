@@ -8,13 +8,15 @@ class CollectAnimPkg(pyblish.api.Collector):
 
     def process(self, context):
         pointcaches = [i.id for i in context
-                       if i.data("family") == "pointcache"]
+                       if i.data.get("family") == "pointcache"]
 
         if pointcaches:
             self.log.info("Found animPkg")
-            instance = context.create_instance("animPkg", family="package")
-            instance.set_data("label", "animation")
-            instance.set_data("subset", "animPkg")
+
+            instance = context.create_instance("animPkg")
+            instance.data["family"] = "package"
+            instance.data["label"] = "animation"
+            instance.data["subset"] = "animPkg"
 
             self.log.info("Adding %s" % pointcaches)
             instance[:] = pointcaches

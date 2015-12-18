@@ -29,7 +29,7 @@ class ExtractMayaAscii(pyblish_magenta.api.Extractor):
                       typ="mayaAscii",
                       exportSelected=True,
                       preserveReferences=False,
-                      constructionHistory=False)
+                      constructionHistory=True)
 
         self.log.info("Extracted instance '{0}' to: {1}".format(
             instance.name, path))

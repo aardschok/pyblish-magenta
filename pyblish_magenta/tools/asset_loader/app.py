@@ -5,7 +5,6 @@ import contextlib
 from PySide import QtGui, QtCore
 
 import lib
-import cquery
 
 self = sys.modules[__name__]
 self._window = None
@@ -15,25 +14,16 @@ class Window(QtGui.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.setWindowTitle("Asset Loader")
-        self.setFixedSize(600, 250)
 
         self._root = None
         self._topic = ""
-        self._representation = list()
+        self._representation = None
 
-        header = QtGui.QWidget()
         body = QtGui.QWidget()
         footer = QtGui.QWidget()
 
-        label1 = QtGui.QLabel("No topic")
-
-        layout = QtGui.QHBoxLayout(header)
-        layout.addWidget(label1)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        list1 = QtGui.QListWidget()  # Asset
-        list2 = QtGui.QListWidget()  # Item
+        list1 = QtGui.QListWidget()  # Category
+        list2 = QtGui.QListWidget()  # Asset
         list3 = QtGui.QListWidget()  # Subset
         list4 = QtGui.QListWidget()  # Version
 
@@ -68,7 +58,6 @@ class Window(QtGui.QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(header)
         layout.addWidget(body)
         layout.addWidget(options, 0, QtCore.Qt.AlignRight)
         layout.addWidget(footer)
@@ -80,7 +69,6 @@ class Window(QtGui.QDialog):
         self.list3 = list3
         self.list4 = list4
         self.path = path
-        self.label1 = label1
         self.btn_load = btn_load
         self.btn_refresh = btn_refresh
         self.closeonload_chk = closeonload_chk
@@ -93,6 +81,8 @@ class Window(QtGui.QDialog):
         list3.currentItemChanged.connect(self.on_list3changed)
         list4.currentItemChanged.connect(self.on_list4changed)
 
+        self.resize(600, 250)
+
     def on_load(self):
         """Import asset into Maya"""
         item = self.list4.currentItem()
@@ -102,12 +92,7 @@ class Window(QtGui.QDialog):
         if self.closeonload_chk.checkState():
             self.close()
 
-    def refresh(self, topic, root, representation):
-        project = cquery.first_match(root,
-                                     selector=".Project",
-                                     direction=cquery.UP)
-        root = os.path.join(project, "assets")
-
+    def refresh(self, root, representation):
         # Reset state
         self.list1.clear()
         self.list2.clear()
@@ -117,16 +102,15 @@ class Window(QtGui.QDialog):
         self.btn_load.setEnabled(False)
 
         self._root = root
-        self._topic = topic
         self._representation = representation
 
-        for i in cquery.matches(root, ".Item", depth=1):
+        for i in list(os.path.join(self._root, p)
+                      for p in os.listdir(self._root)):
             item = QtGui.QListWidgetItem(os.path.basename(i))
             item.setData(QtCore.Qt.UserRole + 1, i)
             self.list1.addItem(item)
 
         self.list1.setCurrentItem(self.list1.item(0))
-        self.label1.setText(topic)
 
     def on_refresh(self):
         self.refresh(self._topic, self._root, self._representation)
@@ -146,9 +130,7 @@ class Window(QtGui.QDialog):
         root = current.data(QtCore.Qt.UserRole + 1)
 
         no_items = True
-        for i in cquery.matches(root, ".Item", depth=1):
-            if i == root:
-                continue
+        for i in walk(root):
             item = QtGui.QListWidgetItem(os.path.basename(i))
             item.setData(QtCore.Qt.UserRole + 1, i)
             self.list2.addItem(item)
@@ -174,9 +156,7 @@ class Window(QtGui.QDialog):
         root = os.path.join(root, "publish")
 
         no_items = True
-        for i in cquery.matches(root, ".Subset", depth=1):
-            if i == root:
-                continue
+        for i in walk(root):
             item = QtGui.QListWidgetItem(os.path.basename(i))
             item.setData(QtCore.Qt.UserRole + 1, i)
             self.list3.addItem(item)
@@ -200,9 +180,7 @@ class Window(QtGui.QDialog):
         root = current.data(QtCore.Qt.UserRole + 1)
 
         no_items = True
-        for i in cquery.matches(root, ".Version", depth=1):
-            if i == root:
-                continue
+        for i in walk(root):
             item = QtGui.QListWidgetItem(os.path.basename(i))
             item.setData(QtCore.Qt.UserRole + 1, i)
             self.list4.addItem(item)
@@ -226,7 +204,7 @@ class Window(QtGui.QDialog):
         self.path.setText(root)
 
 
-def show(topic, root, representation):
+def show(root, representation):
     if self._window:
         self._window.close()
         del(self._window)
@@ -242,9 +220,22 @@ def show(topic, root, representation):
 
     window = Window(parent)
     window.show()
-    window.refresh(topic, root, representation)
+    window.refresh(root, representation)
 
     self._window = window
+
+
+def walk(root):
+    try:
+        dirs = os.listdir(root)
+    except:
+        return
+
+    for path in dirs:
+        if path.startswith("."):
+            continue
+
+        yield os.path.join(root, path)
 
 
 @contextlib.contextmanager
@@ -255,9 +246,13 @@ def application():
 
 
 if __name__ == '__main__':
-    os.environ["PROJECTROOT"] = "C:/Users/marcus/Dropbox/projects/thedeal/"
-    root = ("C:/Users/marcus/Dropbox/projects/thedeal/film"
-            "/seq01/1000/work/marcus/maya")
+    import cquery
+    # root = ("C:/Users/marcus/Dropbox/projects/thedeal/assets")
+    root = r"P:\Projects\KLM_Bluey"
+    root = cquery.first_match(root,
+                              selector=".Project",
+                              direction=cquery.UP)
+    root = os.path.join(root, "production", "assets")
 
     with application():
-        show("thedeal seq01 1000", root, representation=".ma")
+        show(root, representation=".ma")

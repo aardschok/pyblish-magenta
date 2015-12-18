@@ -12,17 +12,17 @@ class Window(QtGui.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.setWindowTitle("Package Loader")
-        self.setFixedSize(400, 250)
 
         self._root = None
         self._topic = ""
         self._packages = {}
+        self._representation = None
 
         header = QtGui.QWidget()
         body = QtGui.QWidget()
         footer = QtGui.QWidget()
 
-        label1 = QtGui.QLabel("No topic")
+        label1 = QtGui.QLabel("Package Loader")
 
         layout = QtGui.QHBoxLayout(header)
         layout.addWidget(label1)
@@ -53,7 +53,7 @@ class Window(QtGui.QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(header)
+        # layout.addWidget(header)
         layout.addWidget(body)
         layout.addWidget(footer)
         layout.setContentsMargins(10, 10, 10, 10)
@@ -72,19 +72,24 @@ class Window(QtGui.QDialog):
         list1.currentItemChanged.connect(self.on_packagechanged)
         list2.currentItemChanged.connect(self.on_versionchanged)
 
-    def refresh(self, topic, root):
+        self.resize(400, 250)
+
+    def refresh(self, root, representation):
+        self.list1.clear()
+        self.list2.clear()
+        self.list3.clear()
+
         packages = lib.list_packages(root)
 
         self._root = root
-        self._topic = topic
         self._packages = packages
+        self._representation = representation
 
         for p in packages:
             item = QtGui.QListWidgetItem(p)
             self.list1.addItem(item)
 
         self.list1.setCurrentItem(self.list1.item(0))
-        self.label1.setText(topic)
 
         self.btn_load.setEnabled(False)
 
@@ -92,7 +97,7 @@ class Window(QtGui.QDialog):
         """Import package into Maya"""
         package = self._packages[self.list1.currentItem().text()]
         version = package["versions"][self.list2.currentItem().text()]
-        lib.load_package(version)
+        lib.load_package(version, self._representation)
         self.close()
 
     def on_refresh(self):
@@ -100,7 +105,13 @@ class Window(QtGui.QDialog):
 
     def on_packagechanged(self, current, previous):
         """List versions of package"""
-        package = self._packages[current.text()]
+        try:
+            package = self._packages[current.text()]
+        except AttributeError:
+            # No current item
+            return
+
+        self.list2.clear()
 
         for v in sorted(package["versions"]):
             item = QtGui.QListWidgetItem(v)
@@ -110,7 +121,12 @@ class Window(QtGui.QDialog):
         """List contents of package"""
         self.list3.clear()
 
-        package = self._packages[self.list1.currentItem().text()]
+        try:
+            package = self._packages[self.list1.currentItem().text()]
+        except AttributeError:
+            # No current item
+            return
+
         version = package["versions"][self.list2.currentItem().text()]
         pkg = next(f for f in os.listdir(version)
                    if f.endswith(".pkg"))
@@ -125,7 +141,7 @@ class Window(QtGui.QDialog):
         self.btn_load.setEnabled(True)
 
 
-def show(topic, root):
+def show(root, representation):
     self = sys.modules[__name__]
 
     try:
@@ -136,7 +152,7 @@ def show(topic, root):
         parent = None
 
     self.window = Window(parent)
-    self.window.refresh(topic, root)
+    self.window.refresh(root, representation)
     self.window.show()
 
 
@@ -152,4 +168,4 @@ if __name__ == '__main__':
             "seq01/1000/work/marcus/maya")
 
     with application():
-        show("thedeal seq01 1000", root)
+        show(root, ".abc")
