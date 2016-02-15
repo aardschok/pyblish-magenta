@@ -21,7 +21,6 @@ def get_upstream_hierarchy_fast(nodes):
     return parents
 
 
-
 class CollectInstances(pyblish.api.Collector):
     """Collect instances from the Maya scene
 

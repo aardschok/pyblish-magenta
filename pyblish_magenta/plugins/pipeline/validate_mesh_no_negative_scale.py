@@ -27,8 +27,8 @@ class ValidateMeshNoNegativeScale(pyblish.api.Validator):
 
         invalid = []
         for mesh in meshes:
-            transform = cmds.listRelatives(mesh, parent=True, fullPath=True)
-            scale = cmds.getAttr("{0}.scale".format(transform))
+            transform = cmds.listRelatives(mesh, parent=True, fullPath=True)[0]
+            scale = cmds.getAttr("{0}.scale".format(transform))[0]
 
             if any(x < 0 for x in scale):
                 invalid.append(mesh)
