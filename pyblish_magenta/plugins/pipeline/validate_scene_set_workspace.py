@@ -1,7 +1,25 @@
 import pyblish.api
 import maya.cmds as cmds
+import os
 
-from pyblish_magenta.utils.path import is_subdir
+
+def is_subdir(path, root_dir):
+    """ Returns whether path is a subdirectory (or file) within root_dir """
+    path = os.path.realpath(path)
+    root_dir = os.path.realpath(root_dir)
+
+    # If not on same drive
+    if os.path.splitdrive(path)[0] != os.path.splitdrive(root_dir)[0]:
+        return False
+
+    # Get 'relative path' (can contain ../ which means going up)
+    relative = os.path.relpath(path, root_dir)
+
+    # Check if the path starts by going up, if so it's not a subdirectory. :)
+    if relative.startswith(os.pardir) or relative == os.curdir:
+        return False
+    else:
+        return True
 
 
 class ValidateSceneSetWorkspace(pyblish.api.Validator):
