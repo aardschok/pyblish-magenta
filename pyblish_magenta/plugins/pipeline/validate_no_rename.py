@@ -23,23 +23,23 @@ class ValidateNoRename(pyblish.api.Validator):
     version = (0, 1, 0)
     label = 'No Default Naming'
 
-    __simpleNames = set(['pSphere', 'pCube', 'pCylinder', 'pCone', 'pPlane', 'pTorus',
-                         'pPrism', 'pPyramid', 'pPipe', 'pHelix', 'pSolid',
-                         'nurbsSphere', 'nurbsCube', 'nurbsCylinder', 'nurbsCone',
-                         'nurbsPlane', 'nurbsTorus', 'nurbsCircle', 'nurbsSquare'])
-    __simpleNamesRegex = [re.compile('{0}[0-9]?$'.format(x)) for x in __simpleNames]
+    # set
+    __simpleNames = ['pSphere', 'pCube', 'pCylinder', 'pCone', 'pPlane', 'pTorus',
+                     'pPrism', 'pPyramid', 'pPipe', 'pHelix', 'pSolid',
+                     'nurbsSphere', 'nurbsCube', 'nurbsCylinder', 'nurbsCone',
+                     'nurbsPlane', 'nurbsTorus', 'nurbsCircle', 'nurbsSquare']
+    __regex = re.compile('({0})[0-9]?$'.format("|".join(__simpleNames)))
 
     def process(self, instance):
         """Process all the nodes in the instance 'objectSet'"""
         transforms = cmds.ls(instance, type='transform')
+
+        regex = self.__regex
         
         invalid = []
         for t in transforms:
-            t_shortName = short_name(t)
-            for regex in self.__simpleNamesRegex:
-                if regex.match(t_shortName):
-                    invalid.append(t)
-                    break
+            if regex.match(short_name(t)):
+                invalid.append(t)
             
         if invalid:
             raise ValueError("Non-renamed objects found: {0}".format(invalid))
