@@ -14,8 +14,6 @@ class ValidateNoTransformZeroScale(pyblish.api.Validator):
 
     """
 
-    # TODO: Check if this suffer from floating point precision errors. If so we need to implement a set tolerance.
-
     families = ['model']
     hosts = ['maya']
     category = 'geometry'
