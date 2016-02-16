@@ -32,7 +32,11 @@ class ValidateSceneSetWorkspace(pyblish.api.Validator):
     label = 'Maya Workspace Set'
 
     def process(self, context):
+
         scene_name = cmds.file(q=1, sceneName=True)
+        if not scene_name:
+            raise RuntimeError("Scene hasn't been saved. Workspace can't be validated.")
+
         root_dir = cmds.workspace(q=1, rootDirectory=True)
 
         if not is_subdir(scene_name, root_dir):
