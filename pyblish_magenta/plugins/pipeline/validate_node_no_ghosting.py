@@ -14,9 +14,8 @@ class ValidateNodeNoGhosting(pyblish.api.Validator):
 
     """
 
-    families = ['model']
+    families = ['model', 'rig']
     hosts = ['maya']
-    category = 'model'
     optional = False
     version = (0, 1, 0)
 
