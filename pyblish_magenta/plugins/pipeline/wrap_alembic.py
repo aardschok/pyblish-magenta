@@ -37,6 +37,8 @@ class WrapAlembics(pyblish.api.Integrator):
     optional = True
 
     def process(self, context):
+
+        # Collect integration directories
         paths = list()
         for instance in context:
             if instance.data("family") != "pointcache":
@@ -50,7 +52,22 @@ class WrapAlembics(pyblish.api.Integrator):
 
             paths.append(integration_dir)
 
-        source = code.format(paths=json.dumps(paths))
+        # Collect alembic files
+        alembics = []
+        for path in paths:
+            path = os.path.realpath(path)
+            assert os.path.isdir(path)
+            for filename in os.listdir(path):
+                if not filename.endswith(".abc"):
+                    continue
+                alembic = os.path.join(path, filename)
+                alembics.append(alembic)
+
+        if not alembics:
+            self.log.warning("No alembic files found to wrap")
+            return
+
+        source = code.format(alembics=json.dumps(alembics))
 
         self.log.info("Running source in Maya Standalone: %s" % source)
         self.log.info("temp_file: %s" % temp_file)
@@ -102,39 +119,33 @@ from maya import cmds
 
 cmds.loadPlugin('AbcImport', quiet=True)
 
-paths = {paths}  # Provided at run-time
+alembics = {alembics}  # Provided at run-time
 
-for path in paths:
-    path = os.path.realpath(path)
-    assert os.path.isdir(path)
-    for alembic in os.listdir(path):
-        alembic = os.path.join(path, alembic)
-        if not alembic.endswith(".abc"):
-            continue
+for alembic in alembics:
 
-        cmds.file(new=True, force=True)
+    cmds.file(new=True, force=True)
 
-        print("Importing %s" % alembic)
-        cmds.AbcImport(alembic,
-                       mode="import",
-                       fitTimeRange=True,
-                       setToStartFrame=True)
+    print("Importing %s" % alembic)
+    cmds.AbcImport(alembic,
+                   mode="import",
+                   fitTimeRange=True,
+                   setToStartFrame=True)
 
-        # Sanity check
-        for node in cmds.ls(type="AlembicNode"):
-            print("%s.startFrame: %s"
-                % (node, cmds.getAttr(node + ".startFrame")))
+    # Sanity check
+    for node in cmds.ls(type="AlembicNode"):
+        print("%s.startFrame: %s"
+            % (node, cmds.getAttr(node + ".startFrame")))
 
-        wrapper = os.path.splitext(alembic)[0] + ".ma"
-        wrapper = os.path.join(path, wrapper).replace("\\", "/")
+    wrapper = os.path.splitext(alembic)[0] + ".ma"
+    wrapper = os.path.join(path, wrapper).replace("\\", "/")
 
-        print("Exporting to %s" % wrapper)
-        cmds.file(wrapper,
-                  exportAll=True,
-                  force=True,
-                  type="mayaAscii",
-                  constructionHistory=True)
-        print("Exported successfully")
+    print("Exporting to %s" % wrapper)
+    cmds.file(wrapper,
+              exportAll=True,
+              force=True,
+              type="mayaAscii",
+              constructionHistory=True)
+    print("Exported successfully")
 
 # Unless we explicitly exit, the process may
 # throw a SegmentationFault.
