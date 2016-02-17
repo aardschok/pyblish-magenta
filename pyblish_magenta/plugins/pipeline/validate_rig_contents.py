@@ -27,16 +27,16 @@ class ValidateRigContents(pyblish.api.Validator):
         assert not missing, ("%s is missing %s"
                              % (instance, missing))
 
-        not_meshes = list()
         self.log.info("Evaluating contents of object sets..")
-        for node in cmds.sets("pointcache_SET", query=True) or []:
-            shapes = list()
-            for shape in cmds.listRelatives(node,
-                                            shapes=True,
-                                            fullPath=True):
-                shapes.append(shape)
-                if cmds.nodeType(shape) != "mesh":
-                    not_meshes.append(shape)
+        not_meshes = list()
+        members = cmds.sets("pointcache_SET", query=True) or []
+        shapes = cmds.listRelatives(members,
+                                    allDescendents=True,
+                                    shapes=True,
+                                    fullPath=True) or []
+        for shape in shapes:
+            if cmds.nodeType(shape) != "mesh":
+                not_meshes.append(shape)
 
         not_transforms = list()
         for node in cmds.sets("controls_SET", query=True) or []:
