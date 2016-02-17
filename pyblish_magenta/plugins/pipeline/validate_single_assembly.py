@@ -18,7 +18,6 @@ class ValidateSingleAssembly(pyblish.api.Validator):
     def process(self, instance):
         from maya import cmds
 
-        self.log.debug("Looking for assemblies in %s" % "\n".join(instance))
         assemblies = cmds.ls(instance, assemblies=True)
 
         # ensure unique (somehow `maya.cmds.ls` doesn't manage that)
