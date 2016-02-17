@@ -35,9 +35,7 @@ class CollectMetadataMaya(pyblish.api.Collector):
 
             references[filename] = {
                 "node": reference,
-                "filename": filename.replace(
-                    os.environ["PROJECTROOT"], "$PROJECTROOT"),
-                "topic": os.environ.get("TOPICS")
+                "filename": filename
             }
 
             self.log.info("Collecting %s" % references[filename])
