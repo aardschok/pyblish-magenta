@@ -1,6 +1,7 @@
 import pyblish.api
 import pyblish_maya
 
+
 def get_upstream_hierarchy_fast(nodes):
     """Passed in nodes must be long names!"""
 
