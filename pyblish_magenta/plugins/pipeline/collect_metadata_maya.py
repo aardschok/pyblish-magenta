@@ -14,15 +14,19 @@ class CollectMetadataMaya(pyblish.api.Collector):
 
         self.log.info("Collecting references..")
 
-        references = dict()
-        for reference in cmds.ls(type="reference"):
-            if reference in ("sharedReferenceNode",):
-                continue
+        # Get only valid top level reference nodes
+        # This makes it easier than using `cmds.ls` since it lists only
+        # top level references, and skips sharedReferenceNode.
+        ref_files = cmds.file(q=1, reference=1)
+        ref_nodes = [cmds.file(x, q=1, referenceNode=True) for x in ref_files]
 
-            # Only consider top-level references
-            reference = cmds.referenceQuery(reference,
-                                            referenceNode=True,
-                                            topReference=True)
+        references = dict()
+        for reference in ref_nodes:
+
+            # Ensure only top-level references
+            assert cmds.referenceQuery(reference,
+                                       referenceNode=True,
+                                       topReference=True) == reference
 
             filename = cmds.referenceQuery(
                 reference,
