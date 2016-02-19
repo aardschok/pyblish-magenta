@@ -2,7 +2,6 @@ import os
 import pyblish.api
 
 
-@pyblish.api.log
 class CollectConceptArt(pyblish.api.Collector):
     """Collect Concept Art files from the current work directory.
 

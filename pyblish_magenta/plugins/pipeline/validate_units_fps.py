@@ -1,7 +1,6 @@
 import pyblish.api
 
 
-@pyblish.api.log
 class ValidateUnitsFps(pyblish.api.ContextPlugin):
     """Validate the scene linear, angular and time units."""
 

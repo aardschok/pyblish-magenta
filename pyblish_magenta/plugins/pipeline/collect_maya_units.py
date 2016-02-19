@@ -4,7 +4,6 @@ from maya import cmds
 from maya import mel
 
 
-@pyblish.api.log
 class CollectMayaUnits(pyblish.api.InstancePlugin):
     """Collect Maya's scene units."""
 

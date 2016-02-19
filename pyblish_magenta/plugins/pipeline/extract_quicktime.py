@@ -7,7 +7,6 @@ from pyblish_magenta.vendor import capture
 from maya import cmds
 
 
-@pyblish.api.log
 class ExtractReview(pyblish_magenta.api.Extractor):
     """Extract camera(s) from an instances as a quicktime
 

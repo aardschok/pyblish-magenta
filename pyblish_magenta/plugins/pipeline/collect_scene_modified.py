@@ -1,7 +1,6 @@
 import pyblish.api
 
 
-@pyblish.api.log
 class CollectSceneSaved(pyblish.api.ContextPlugin):
     """Store scene modified in context"""
     order = pyblish.api.CollectorOrder

@@ -1,7 +1,6 @@
 import pyblish.api
 
 
-@pyblish.api.log
 class ValidateUnitsLinear(pyblish.api.ContextPlugin):
     """Scene must be in linear units"""
 

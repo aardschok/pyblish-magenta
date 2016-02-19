@@ -2,7 +2,6 @@ from maya import cmds
 import pyblish.api
 
 
-@pyblish.api.log
 class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     """Validate the current mesh has UVs.
 

@@ -1,7 +1,6 @@
 import pyblish.api
 
 
-@pyblish.api.log
 class ValidateUnitsAngular(pyblish.api.ContextPlugin):
     """Scene angular units must be in degrees"""
 
