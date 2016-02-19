@@ -1,6 +1,4 @@
-import os
 import pyblish.api
-import time
 
 
 class CollectMetadata(pyblish.api.ContextPlugin):
@@ -32,4 +30,4 @@ class CollectMetadata(pyblish.api.ContextPlugin):
         for instance in context:
             instance.set_data("metadata", metadata)
 
-        self.log.info("Collected %s" % instance.data("metadata"))
+        self.log.info("Collected {0}".format(metadata))
