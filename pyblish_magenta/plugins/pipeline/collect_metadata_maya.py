@@ -45,6 +45,11 @@ class CollectMetadataMaya(pyblish.api.Collector):
             self.log.info("Collecting %s" % references[filename])
 
         for instance in context:
+
+            if not cmds.objExists(instance.id):
+                self.log.info("{0} is not a Maya node".format(instance.id))
+                continue
+
             userattrs = dict()
             for attr in cmds.listAttr(instance.id, userDefined=True):
                 try:
