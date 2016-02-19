@@ -33,6 +33,7 @@ class CollectInstances(pyblish.api.ContextPlugin):
 
     """
 
+    order = pyblish.api.CollectorOrder
     hosts = ["maya"]
     verbose = False
 
