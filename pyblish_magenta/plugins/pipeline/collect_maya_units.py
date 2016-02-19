@@ -7,7 +7,7 @@ from maya import mel
 class CollectMayaUnits(pyblish.api.InstancePlugin):
     """Collect Maya's scene units."""
 
-    order = pyblish.api.SelectorOrder
+    order = pyblish.api.CollectorOrder
     hosts = ["maya"]
 
     def process(self, context):
