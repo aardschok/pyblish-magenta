@@ -4,7 +4,7 @@ from maya import cmds
 from maya import mel
 
 
-class CollectMayaUnits(pyblish.api.InstancePlugin):
+class CollectMayaUnits(pyblish.api.ContextPlugin):
     """Collect Maya's scene units."""
 
     order = pyblish.api.CollectorOrder
