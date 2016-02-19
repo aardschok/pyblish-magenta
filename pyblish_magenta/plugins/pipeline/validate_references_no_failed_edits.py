@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateReferencesNoFailedEdits(pyblish.api.Validator):
+class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
     """Validate that all referenced nodes' reference nodes don't have failed reference edits.
 
         Failed reference edits can happen if you apply a change to a referenced object in the scene and then change
@@ -17,6 +17,7 @@ class ValidateReferencesNoFailedEdits(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['layout']
     hosts = ['maya']
     category = 'layout'

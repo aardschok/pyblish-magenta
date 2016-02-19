@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNoUnknownNodes(pyblish.api.Validator):
+class ValidateNoUnknownNodes(pyblish.api.InstancePlugin):
     """Checks to see if there are any unknown nodes in the scene.
         This often happens if nodes from plug-ins are used but are not available on this machine.
 
@@ -10,6 +10,7 @@ class ValidateNoUnknownNodes(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model', 'layout', 'rig']
     hosts = ['maya']
     category = 'cleanup'

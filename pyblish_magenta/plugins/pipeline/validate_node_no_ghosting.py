@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNodeNoGhosting(pyblish.api.Validator):
+class ValidateNodeNoGhosting(pyblish.api.InstancePlugin):
     """Ensure nodes do not have ghosting enabled.
 
     .. note::
@@ -14,6 +14,7 @@ class ValidateNodeNoGhosting(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model', 'rig']
     hosts = ['maya']
     optional = False

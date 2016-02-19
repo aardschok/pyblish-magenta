@@ -2,9 +2,10 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateSceneDimensions(pyblish.api.Validator):
+class ValidateSceneDimensions(pyblish.api.InstancePlugin):
     """Ensure objects are not immensely huge and not positioned in the far far corners of the 3D space."""
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

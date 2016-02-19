@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNamespaceEmpty(pyblish.api.Validator):
+class ValidateNamespaceEmpty(pyblish.api.ContextPlugin):
     """Validate there are no empty namespaces in the scene.
 
     This is a scene wide validation that filters out "UI" and "shared"
@@ -10,6 +10,7 @@ class ValidateNamespaceEmpty(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ["model"]
     hosts = ["maya"]
     category = "scene"

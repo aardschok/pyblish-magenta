@@ -2,13 +2,14 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateMeshLaminaFaces(pyblish.api.Validator):
+class ValidateMeshLaminaFaces(pyblish.api.InstancePlugin):
     """Validate meshes don't have lamina faces.
     
     Lamina faces share all of their edges.
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

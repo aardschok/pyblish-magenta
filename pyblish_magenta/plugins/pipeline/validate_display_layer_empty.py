@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateDisplayLayerEmpty(pyblish.api.Validator):
+class ValidateDisplayLayerEmpty(pyblish.api.ContextPlugin):
     """Validate there are no empty displayLayers in the scene.
 
     .. note::
@@ -15,6 +15,7 @@ class ValidateDisplayLayerEmpty(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     hosts = ['maya']
     category = 'scene'
     version = (0, 1, 0)

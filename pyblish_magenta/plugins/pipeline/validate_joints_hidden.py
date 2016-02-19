@@ -57,7 +57,7 @@ def is_visible(node, displayLayer=True, intermediateObject=True, parentHidden=Tr
     return True
 
 
-class ValidateJointsHidden(pyblish.api.Validator):
+class ValidateJointsHidden(pyblish.api.InstancePlugin):
     """Validate all joints are hidden.
 
     .. note::
@@ -65,6 +65,7 @@ class ValidateJointsHidden(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['rig']
     hosts = ['maya']
     category = 'rig'

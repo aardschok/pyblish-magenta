@@ -1,7 +1,7 @@
 import pyblish.api
 
 
-class CollectAnimPkg(pyblish.api.Collector):
+class CollectAnimPkg(pyblish.api.ContextPlugin):
     hosts = ["maya"]
     label = "Collect animPkg"
     order = pyblish.api.Collector.order + 0.1

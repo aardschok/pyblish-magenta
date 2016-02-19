@@ -3,9 +3,9 @@ import datetime
 import pyblish.api
 
 
-class LogHistory(pyblish.api.Validator):
+class LogHistory(pyblish.api.ContextPlugin):
     label = "Log History"
-    order = pyblish.api.Validator.order + 0.45
+    order = pyblish.api.ValidatorOrder + 0.45
     optional = True
 
     def process(self, context):

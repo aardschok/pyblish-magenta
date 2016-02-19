@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNoTransformZeroScale(pyblish.api.Validator):
+class ValidateNoTransformZeroScale(pyblish.api.InstancePlugin):
     """Validate there are no transforms with zero scale.
     Especially in modeling that would be a rather useless transform. :)
 
@@ -14,6 +14,7 @@ class ValidateNoTransformZeroScale(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

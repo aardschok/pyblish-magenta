@@ -2,8 +2,10 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNoIntermediateObjects(pyblish.api.Validator):
-    """Ensure no intermediate objects are in the Context"""
+class ValidateNoIntermediateObjects(pyblish.api.InstancePlugin):
+    """Ensure no intermediate objects are in the Instance"""
+
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

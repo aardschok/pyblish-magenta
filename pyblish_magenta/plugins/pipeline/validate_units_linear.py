@@ -4,8 +4,8 @@ import pyblish.api
 @pyblish.api.log
 class ValidateUnitsLinear(pyblish.api.ContextPlugin):
     """Scene must be in linear units"""
-    order = pyblish.api.ValidatorOrder
 
+    order = pyblish.api.ValidatorOrder
     label = "Units (linear)"
     families = ["rig", "model", "pointcache", "curves"]
 

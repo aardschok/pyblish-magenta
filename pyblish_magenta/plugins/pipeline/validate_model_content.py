@@ -1,7 +1,9 @@
 import pyblish.api
 
 
-class ValidateModelContent(pyblish.api.Validator):
+class ValidateModelContent(pyblish.api.InstancePlugin):
+
+    order = pyblish.api.ValidatorOrder
     families = ["model"]
     hosts = ["maya"]
     label = "Model Content"

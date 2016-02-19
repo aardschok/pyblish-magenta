@@ -2,7 +2,7 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateNoDefaultCameras(pyblish.api.Validator):
+class ValidateNoDefaultCameras(pyblish.api.InstancePlugin):
     """Ensure no default (startup) cameras are in the instance.
 
     This might be unnecessary. In the past there were some issues with
@@ -10,6 +10,7 @@ class ValidateNoDefaultCameras(pyblish.api.Validator):
     settings when being loaded and sometimes being skipped.
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['animation']
     hosts = ['maya']
     version = (0, 1, 0)

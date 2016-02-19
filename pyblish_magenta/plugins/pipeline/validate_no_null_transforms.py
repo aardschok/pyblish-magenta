@@ -21,7 +21,7 @@ def has_shape_children(node):
     return True
 
 
-class ValidateNoNullTransforms(pyblish.api.Validator):
+class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     """Ensure no null transforms are in the scene.
 
    We will consider transforms with only intermediate objects under it to be null transform as well. 
@@ -31,6 +31,7 @@ class ValidateNoNullTransforms(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'

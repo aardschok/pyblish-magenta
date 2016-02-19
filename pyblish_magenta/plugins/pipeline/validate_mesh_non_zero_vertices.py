@@ -3,7 +3,7 @@ import pyblish_maya
 from maya import cmds
 
 
-class ValidateMeshNonZeroVertices(pyblish.api.Validator):
+class ValidateMeshNonZeroVertices(pyblish.api.InstancePlugin):
     """Validate meshes have no internal points offsets (#34)
 
     Vertices can have internal vertex offset that mess with subsequent
@@ -12,6 +12,7 @@ class ValidateMeshNonZeroVertices(pyblish.api.Validator):
     zero.
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

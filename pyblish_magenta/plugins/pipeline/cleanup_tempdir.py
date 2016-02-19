@@ -2,7 +2,7 @@ import shutil
 import pyblish.api
 
 
-class CleanupTempdir(pyblish.api.Plugin):
+class CleanupTempdir(pyblish.api.InstancePlugin):
     """Remove temporary directories used during extraction"""
     label = "Cleanup"
     order = 99

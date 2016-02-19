@@ -9,9 +9,10 @@ def get_namespace(node_name):
     return node_name.rpartition(":")[0]
 
 
-class ValidateNoNamespace(pyblish.api.Validator):
+class ValidateNoNamespace(pyblish.api.InstancePlugin):
     """Ensure the nodes don't have a namespace"""
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'

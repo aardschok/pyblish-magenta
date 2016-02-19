@@ -2,8 +2,10 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
+class ValidateMeshNormalsUnlocked(pyblish.api.InstancePlugin):
     """ Validate meshes in the instance have unlocked normals """
+
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

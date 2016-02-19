@@ -2,8 +2,10 @@ import pyblish.api
 
 
 @pyblish.api.log
-class ValidateUnitsAngular(pyblish.api.Validator):
+class ValidateUnitsAngular(pyblish.api.ContextPlugin):
     """Scene angular units must be in degrees"""
+
+    order = pyblish.api.ValidatorOrder
     label = "Units (angular)"
     families = ["rig", "model", "pointcache", "curves"]
 

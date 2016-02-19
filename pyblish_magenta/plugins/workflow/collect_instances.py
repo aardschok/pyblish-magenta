@@ -22,7 +22,7 @@ def get_upstream_hierarchy_fast(nodes):
     return parents
 
 
-class CollectInstances(pyblish.api.Collector):
+class CollectInstances(pyblish.api.ContextPlugin):
     """Collect instances from the Maya scene
 
     An instance is identified by having an _INST suffix

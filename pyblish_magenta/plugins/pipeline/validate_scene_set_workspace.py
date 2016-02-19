@@ -22,9 +22,10 @@ def is_subdir(path, root_dir):
         return True
 
 
-class ValidateSceneSetWorkspace(pyblish.api.Validator):
+class ValidateSceneSetWorkspace(pyblish.api.ContextPlugin):
     """Validate the scene is inside the currently set Maya workspace"""
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'scene'

@@ -1,7 +1,7 @@
 import pyblish.api
 
 
-class ValidateRigContents(pyblish.api.Validator):
+class ValidateRigContents(pyblish.api.InstancePlugin):
     """Ensure rig contains pipeline-critical content
 
     Every rig must contain at least two object sets:
@@ -10,6 +10,7 @@ class ValidateRigContents(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     label = "Rig Contents"
     families = ["rig"]
     hosts = ["maya"]

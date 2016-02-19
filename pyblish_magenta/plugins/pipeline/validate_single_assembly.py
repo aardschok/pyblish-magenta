@@ -1,7 +1,7 @@
 import pyblish.api
 
 
-class ValidateSingleAssembly(pyblish.api.Validator):
+class ValidateSingleAssembly(pyblish.api.InstancePlugin):
     """Ensure all nodes are in a single assembly
 
     Published assets must be contained within a single transform
@@ -9,6 +9,7 @@ class ValidateSingleAssembly(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['rig', 'model']
     hosts = ['maya']
     category = 'rig'

@@ -10,7 +10,7 @@ SUFFIX_NAMING_TABLE = {'mesh': ["_GEO", "_GES", "_GEP"],   # (Disabled/Old) Geom
 ALLOW_IF_NOT_IN_SUFFIX_TABLE = True
 
 
-class ValidateTransformNamingSuffix(pyblish.api.Validator):
+class ValidateTransformNamingSuffix(pyblish.api.InstancePlugin):
     """Checks whether transform naming conventions hold up for the model based on type of shape they hold.
 
     .. warning::
@@ -18,6 +18,7 @@ class ValidateTransformNamingSuffix(pyblish.api.Validator):
 
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'

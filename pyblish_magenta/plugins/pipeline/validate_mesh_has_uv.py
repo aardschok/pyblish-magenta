@@ -3,7 +3,7 @@ import pyblish.api
 
 
 @pyblish.api.log
-class ValidateMeshHasUVs(pyblish.api.Validator):
+class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     """Validate the current mesh has UVs.
 
     It validates whether the current UV set has non-zero UVs and
@@ -12,6 +12,7 @@ class ValidateMeshHasUVs(pyblish.api.Validator):
     UVs for every face.
     """
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

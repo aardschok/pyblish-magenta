@@ -2,8 +2,10 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateReferencesOnly(pyblish.api.Validator):
+class ValidateReferencesOnly(pyblish.api.InstancePlugin):
     """Validate that all nodes are referenced nodes."""
+
+    order = pyblish.api.ValidatorOrder
     families = ['layout']
     hosts = ['maya']
     category = 'layout'

@@ -2,9 +2,10 @@ import pyblish.api
 from maya import cmds
 
 
-class ValidateMeshNonManifold(pyblish.api.Validator):
+class ValidateMeshNonManifold(pyblish.api.InstancePlugin):
     """Ensure that meshes don't have non-manifold edges or vertices"""
 
+    order = pyblish.api.ValidatorOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'
@@ -21,4 +22,5 @@ class ValidateMeshNonManifold(pyblish.api.Validator):
                 invalid.append(mesh)
 
         if invalid:
-            raise ValueError("Meshes found with non-manifold edges/vertices: {0}".format(invalid))
+            raise ValueError("Meshes found with non-manifold "
+                             "edges/vertices: {0}".format(invalid))
