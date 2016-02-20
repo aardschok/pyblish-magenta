@@ -4,6 +4,15 @@ import pyblish.api
 
 
 class LogHistory(pyblish.api.ContextPlugin):
+    """A Log of the current Publish will be produced.
+
+    Only information up to the `order` is collected.
+
+    Logs are stored in the user folder in a `logs`
+    directory.
+
+    """
+
     label = "Log History"
     order = pyblish.api.ValidatorOrder + 0.45
     optional = True
