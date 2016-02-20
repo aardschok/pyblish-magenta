@@ -3,7 +3,7 @@ import pyblish.api
 
 class CleanupComment(pyblish.api.InstancePlugin):
     """Clear working scene of temporal information"""
-    label = "Maya Cleanup"
+    label = "Cleanup Maya Comment"
     order = 99
     hosts = ["maya"]
     families = ["comment"]

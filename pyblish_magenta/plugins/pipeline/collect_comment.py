@@ -9,7 +9,7 @@ class CollectComment(pyblish.api.InstancePlugin):
     when they have some content in the "notes" area
 
     """
-    label = "Maya Collect Comment"
+    label = "Maya Comment"
 
     order = pyblish.api.CollectorOrder + 0.2
     hosts = ["maya"]
