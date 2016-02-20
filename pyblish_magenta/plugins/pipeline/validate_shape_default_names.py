@@ -8,7 +8,7 @@ def short_name(node):
     return node.rsplit("|", 1)[-1].rsplit(":", 1)[-1]
 
 
-class ValidateCorrectShapeNames(pyblish.api.InstancePlugin):
+class ValidateShapeDefaultNames(pyblish.api.InstancePlugin):
     """Validates that Shape names are using Maya's default format.
 
     .. note::

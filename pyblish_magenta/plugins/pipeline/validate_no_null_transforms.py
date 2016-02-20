@@ -36,7 +36,7 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     hosts = ['maya']
     category = 'cleanup'
     version = (0, 1, 0)
-    label = 'Empty/Null Transforms'
+    label = 'No Empty/Null Transforms'
 
     def process(self, instance):
         """Process all the transform nodes in the instance """

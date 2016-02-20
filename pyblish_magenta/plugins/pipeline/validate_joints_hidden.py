@@ -2,10 +2,14 @@ import pyblish.api
 from maya import cmds
 
 
-def is_visible(node, displayLayer=True, intermediateObject=True, parentHidden=True, visibility=True):
+def is_visible(node,
+               displayLayer=True,
+               intermediateObject=True,
+               parentHidden=True,
+               visibility=True):
     """Is `node` visible?
 
-    Returns whether a node is hidden by one of the following methods (if parameter is True):
+    Returns whether a node is hidden by one of the following methods:
     - The node exists (always checked)
     - The node must be a dagNode (always checked)
     - The node's visibility is off.
