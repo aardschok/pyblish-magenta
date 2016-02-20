@@ -49,7 +49,8 @@ class CollectInstances(pyblish.api.ContextPlugin):
             try:
                 cmds.getAttr(objset + ".family")
             except ValueError:
-                raise Exception("Found: %s found, but no family." % objset)
+                self.log.error("Found: %s found, but no family." % objset)
+                continue
 
             instance = context.create_instance(objset)
             short_name = objset.rsplit("|", 1)[-1].rsplit(":", 1)[-1]
@@ -79,10 +80,11 @@ class CollectInstances(pyblish.api.ContextPlugin):
                 nodes = members + parents + children
 
                 # Include all history
-                # TODO: Enable inclusion of history?
-                #history = cmds.listHistory(nodes,
-                #                           leaf=False) or []
-                #nodes += history
+                include_history = False  # disable for now
+                if include_history:
+                    history = cmds.listHistory(nodes,
+                                               leaf=False) or []
+                    nodes += history
 
                 if self.verbose:
                     self.log.debug("Collecting nodes: %s" % nodes)
@@ -107,7 +109,7 @@ class CollectInstances(pyblish.api.ContextPlugin):
             for key, value in user_data:
                 instance.set_data(key, value=value)
 
-            assert instance.has_data("family")
+            assert instance.has_data("family"), "No family data in instance"
 
         context[:] = sorted(
             context, key=lambda instance: instance.data("family"))
