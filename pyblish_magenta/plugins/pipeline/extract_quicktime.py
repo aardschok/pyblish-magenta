@@ -51,13 +51,13 @@ class ExtractReview(pyblish_magenta.api.Extractor):
         off_screen = instance.data('offScreen', False)
         maintain_aspect_ratio = instance.data('maintainAspectRatio', True)
 
-        cam_opts = capture.CameraOptions()
-
         # Set viewport settings
-        view_opts = capture.ViewportOptions()
-        view_opts.displayAppearance = "smoothShaded"
-        view_opts.polymeshes = True
-        view_opts.nurbsSurfaces = True
+        view_opts = capture.ViewportOptions.copy()
+        view_opts.update({
+            "displayAppearance": "smoothShaded",
+            "polymeshes": True,
+            "nurbsSurfaces": True
+        })
 
         cameras = [c for c in instance if cmds.nodeType(c) == "camera"]
         cameras = [cmds.listRelatives(c, parent=True)[0] for c in cameras]
@@ -88,8 +88,7 @@ class ExtractReview(pyblish_magenta.api.Extractor):
                 compression=compression,
                 off_screen=off_screen,
                 maintain_aspect_ratio=maintain_aspect_ratio,
-                viewport_options=view_opts,
-                camera_options=cam_opts)
+                viewport_options=view_opts)
 
             self.log.info("Outputted to: %s" % output)
             instance.set_data("reviewOutput", output)
