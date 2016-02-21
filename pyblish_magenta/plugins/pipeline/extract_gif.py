@@ -5,6 +5,24 @@ import subprocess
 import pyblish.api
 
 
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
+
+
 class ExtractGif(pyblish.api.Extractor):
     label = "Gif"
     families = ["review"]
@@ -15,6 +33,9 @@ class ExtractGif(pyblish.api.Extractor):
         output_path = instance.data("reviewOutput")
         if not output_path:
             return self.log.info("No capture available for conversion.")
+
+        if not which("ffmpeg"):
+            raise RuntimeError("Executable 'ffmpeg' can't be found to create GIF")
 
         self.log.info("Generating gif from %s" % output_path)
 
@@ -38,6 +59,7 @@ class ExtractGif(pyblish.api.Extractor):
             output = output_path.rsplit(".", 1)[0] + ".gif"
             self.log.info("Outputting to %s" % output)
 
+            output_ = None
             try:
                 output_ = subprocess.check_output(
                     generate_palette.format(
