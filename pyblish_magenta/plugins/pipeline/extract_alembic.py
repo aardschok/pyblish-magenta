@@ -115,11 +115,6 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
         start_frame = cmds.playbackOptions(q=True, animationStartTime=True)
         end_frame = cmds.playbackOptions(q=True, animationEndTime=True)
 
-        # We include 5 frame handles by default
-        handles = 5
-        start_frame -= handles
-        end_frame += handles
-
         return {
             "startFrame": start_frame,
             "endFrame": end_frame,
