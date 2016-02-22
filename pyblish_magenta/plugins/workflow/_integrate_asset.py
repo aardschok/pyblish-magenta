@@ -15,7 +15,7 @@ class IntegrateAssets(pyblish.api.Integrator):
     """
 
     label = "Assets"
-    families = ["model", "rig", "pointcache", "proxy", "vrmeshReplace"]
+    families = ["model", "rig", "pointcache"]
 
     def process(self, context, instance):
         self.log.info("Integrating..")
