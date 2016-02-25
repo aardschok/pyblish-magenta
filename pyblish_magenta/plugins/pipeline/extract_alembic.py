@@ -216,7 +216,7 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
             if isinstance(value, (list, tuple)):
                 for entry in value:
                     job_args.append("-{0} {1}".format(key, entry))
-            if isinstance(value, bool):
+            elif isinstance(value, bool):
                 job_args.append("-{0}".format(key))
             else:
                 job_args.append("-{0} {1}".format(key, value))
