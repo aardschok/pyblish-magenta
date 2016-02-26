@@ -49,6 +49,12 @@ def register_family(item):
 
     assert "name" in item
 
+    # If family was already registered then overwrite it
+    for i, family in enumerate(self.families):
+        if item['name'] == family['name']:
+            self.families[i] = item
+            return
+
     self.families.append(item)
 
 
