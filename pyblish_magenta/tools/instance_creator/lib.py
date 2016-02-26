@@ -85,9 +85,6 @@ def create(name, family, subset=None, use_selection=False):
         key = item["key"]
         value = item["value"](name, family)
 
-        if key == "subset":
-            value = family + subset[0].upper() + subset[1:]
-
         if isinstance(value, bool):
             add_type = {"attributeType": "bool"}
             set_type = {"keyable": False, "channelBox": True}
