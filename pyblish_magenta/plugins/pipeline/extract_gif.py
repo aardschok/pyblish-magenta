@@ -24,6 +24,11 @@ def which(program):
 
 
 class ExtractGif(pyblish.api.Extractor):
+    """Extract "reviewOutput" produced by other Plug-ins into animated GIF.
+
+    This requires `ffmpeg` to be on your `$PATH` so it can run in a subprocess.
+
+    """
     label = "Gif"
     families = ["review"]
     optional = True
@@ -35,7 +40,8 @@ class ExtractGif(pyblish.api.Extractor):
             return self.log.info("No capture available for conversion.")
 
         if not which("ffmpeg"):
-            raise RuntimeError("Executable 'ffmpeg' can't be found to create GIF")
+            raise RuntimeError("Executable 'ffmpeg' can't be found "
+                               "to create GIF")
 
         self.log.info("Generating gif from %s" % output_path)
 
