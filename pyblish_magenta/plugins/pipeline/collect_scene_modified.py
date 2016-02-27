@@ -3,6 +3,8 @@ import pyblish.api
 
 class CollectSceneSaved(pyblish.api.ContextPlugin):
     """Store scene modified in context"""
+
+    label = "Maya Scene Modified"
     order = pyblish.api.CollectorOrder
     hosts = ["maya"]
 

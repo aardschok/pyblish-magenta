@@ -35,6 +35,7 @@ class CollectInstances(pyblish.api.ContextPlugin):
 
     order = pyblish.api.CollectorOrder
     hosts = ["maya"]
+    label = "Maya Instances"
     verbose = False
 
     def process(self, context):
