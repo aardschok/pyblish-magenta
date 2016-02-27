@@ -39,7 +39,7 @@ class ExtractGif(pyblish.api.Extractor):
         if not output_path:
             return self.log.info("No capture available for conversion.")
 
-        if not which("ffmpeg"):
+        if not which("ffmpeg.exe"):
             raise RuntimeError("Executable 'ffmpeg' can't be found "
                                "to create GIF")
 
