@@ -19,8 +19,8 @@ def is_visible(node,
 
     Roughly based on: http://ewertb.soundlinker.com/mel/mel.098.php
 
-    :return: Whether the node is visible in the scene
-    :rtype: bool
+    Returns:
+        bool: Whether the node is visible in the scene
 
     """
 
@@ -41,7 +41,7 @@ def is_visible(node,
             return False
 
     if displayLayer:
-        # Note that the display layer sets overrideEnabled and overrideVisibility on the node.
+        # Display layers set overrideEnabled and overrideVisibility on members
         if cmds.attributeQuery('overrideEnabled', node=node, exists=True):
             if cmds.getAttr('{0}.overrideEnabled'.format(node)) and \
                cmds.getAttr('{0}.overrideVisibility'.format(node)):
@@ -86,4 +86,5 @@ class ValidateJointsHidden(pyblish.api.InstancePlugin):
                 invalid.append(joint)
 
         if invalid:
-            raise ValueError("Meshes found with lamina faces: {0}".format(invalid))
+            raise ValueError("Visible joints are not allowed: "
+                             "{0}".format(invalid))
