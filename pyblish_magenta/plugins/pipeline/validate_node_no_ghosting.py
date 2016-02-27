@@ -5,12 +5,12 @@ from maya import cmds
 class ValidateNodeNoGhosting(pyblish.api.InstancePlugin):
     """Ensure nodes do not have ghosting enabled.
 
-    .. note::
-        If one would publish towards a non-Maya format it's likely that stats like ghosting won't be exported,
-        eg. exporting to Alembic.
+    If one would publish towards a non-Maya format it's likely that stats
+    like ghosting won't be exported, eg. exporting to Alembic.
 
-        Instead of creating many micro-managing checks to ensure attributes have not been changed from their default
-        it could be more efficient to export to a format that will never hold such data anyway.
+    Instead of creating many micro-managing checks (like this one) to ensure
+    attributes have not been changed from their default it could be more
+    efficient to export to a format that will never hold such data anyway.
 
     """
 
@@ -31,9 +31,10 @@ class ValidateNodeNoGhosting(pyblish.api.InstancePlugin):
             for attr, required_value in self._attributes.iteritems():
                 if cmds.attributeQuery(attr, node=node, exists=True):
 
-                    value = cmds.getAttr('{node}.{attr}'.format(node=node, attr=attr))
+                    value = cmds.getAttr('{0}.{1}'.format(node, attr))
                     if value != required_value:
                         invalid.append(node)
 
         if invalid:
-            raise ValueError("Nodes with ghosting enabled found: {0}".format(invalid))
+            raise ValueError("Nodes with ghosting enabled found: "
+                             "{0}".format(invalid))

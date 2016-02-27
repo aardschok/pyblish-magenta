@@ -3,10 +3,13 @@ from maya import cmds
 
 
 class ValidateNoUnknownNodes(pyblish.api.InstancePlugin):
-    """Checks to see if there are any unknown nodes in the scene.
-        This often happens if nodes from plug-ins are used but are not available on this machine.
+    """Checks to see if there are any unknown nodes in the instance.
 
-        Note: Some studios use unknown nodes to store data on (as attributes) because it's a lightweight node.
+    This often happens if nodes from plug-ins are used but are not available
+    on this machine.
+
+    Note: Some studios use unknown nodes to store data on (as attributes)
+        because it's a lightweight node.
 
     """
 
