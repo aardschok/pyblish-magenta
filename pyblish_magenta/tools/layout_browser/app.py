@@ -4,9 +4,6 @@ import contextlib
 
 from PySide import QtGui, QtCore
 
-import lib
-import cquery
-
 self = sys.modules[__name__]
 self._window = None
 

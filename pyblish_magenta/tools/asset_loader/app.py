@@ -246,9 +246,10 @@ def application():
 
 
 if __name__ == '__main__':
-    import cquery
-    # root = ("C:/Users/marcus/Dropbox/projects/thedeal/assets")
-    root = r"P:\Projects\KLM_Bluey"
+
+    # TODO: Make this more dynamic instead of hardcoded
+    from pyblish_magenta.vendor import cquery
+    root = "path/to/project"
     root = cquery.first_match(root,
                               selector=".Project",
                               direction=cquery.UP)

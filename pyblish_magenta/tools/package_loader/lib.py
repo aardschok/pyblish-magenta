@@ -1,7 +1,6 @@
 import os
 import json
-import cquery
-
+from pyblish_magenta.vendor import cquery
 
 def list_packages(root):
     """Return dictionary of packages"""

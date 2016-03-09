@@ -1,5 +1,5 @@
 import pyblish.api
-import cquery
+from pyblish_magenta.vendor import cquery
 import os
 
 

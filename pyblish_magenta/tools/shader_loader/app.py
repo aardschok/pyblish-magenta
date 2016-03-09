@@ -17,7 +17,7 @@ class Window(app.Window):
         self.btn_load.setText("Assign")
 
     def on_load(self):
-        import cquery
+        from pyblish_magenta.vendor import cquery
         item = self.list5.currentItem()
         versiondir = item.data(QtCore.Qt.UserRole + 1)
         asset = cquery.first_match(versiondir, ".Asset", direction=cquery.UP)

@@ -84,7 +84,7 @@ def lsattrs(attrs):
 
 def create_menu():
 
-    import cquery
+    from pyblish_magenta.vendor import cquery
 
     try:
         cmds.deleteUI("_magentaMenu")

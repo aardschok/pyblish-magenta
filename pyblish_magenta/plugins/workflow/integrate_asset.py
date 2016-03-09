@@ -1,6 +1,6 @@
 import os
 import shutil
-import cquery
+from pyblish_magenta.vendor import cquery
 import pyblish.api
 import pyblish_magenta.api
 

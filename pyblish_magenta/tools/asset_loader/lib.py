@@ -1,5 +1,5 @@
 import os
-import cquery
+from pyblish_magenta.vendor import cquery
 
 
 def load(root, representation=".ma"):
