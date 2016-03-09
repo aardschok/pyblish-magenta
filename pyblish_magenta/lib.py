@@ -67,7 +67,9 @@ def format_version(version):
 
 
 for subdir in ("workflow", "pipeline"):
-    PLUGIN_PATHS.append(os.path.join(PLUGINS_PATH, subdir))
+    path = os.path.join(PLUGINS_PATH, subdir)
+    PLUGIN_PATHS.append(path)
+    PLUGIN_PATHS.append(os.path.join(path, "maya"))
 
 
 def setup():
