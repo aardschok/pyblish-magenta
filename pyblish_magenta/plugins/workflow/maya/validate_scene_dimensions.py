@@ -4,7 +4,12 @@ from maya import cmds
 
 
 class ValidateSceneDimensions(pyblish.api.InstancePlugin):
-    """Ensure objects are not immensely huge and not positioned in the far far corners of the 3D space."""
+    """Validates Scene isn't too big in size.
+
+    Ensures objects are not positioned in the far corners of the 3D space
+    beyond the "usual" visible realm. (Far is considered as: 100000 units)
+
+    """
 
     order = pyblish.api.ValidatorOrder
     families = ['model']
@@ -12,20 +17,25 @@ class ValidateSceneDimensions(pyblish.api.InstancePlugin):
     category = 'geometry'
     optional = True
     version = (0, 1, 0)
-    label = "Scene Dimensions (prevent huge object)"
+    label = "Scene Dimensions"
 
-    __far = 1e5  # what we consider the far distance
+    # The far distance threshold
+    __far = 1e5
 
     def process(self, instance):
         """Process all the nodes in the instance"""
-        # TODO: Maybe swap transform type with dagNode type?
-        transforms = cmds.ls(instance, type='transform', long=True)
+        shapes = cmds.ls(instance, shapes=True, long=True)
+        transforms = cmds.listRelatives(shapes, parent=True, fullPath=True)
 
         invalid = []
         for node in transforms:
-            bounding_box = cmds.xform(node, q=1, worldSpace=True, boundingBox=True)
-            if any(x < -self.__far for x in bounding_box[:3]) or any(x > self.__far for x in bounding_box[3:]):
+            bounding_box = cmds.xform(node,
+                                      query=True,
+                                      worldSpace=True,
+                                      boundingBox=True)
+            if any(abs(x) > self.__far for x in bounding_box):
                 invalid.append(node)
 
         if invalid:
-            raise ValueError("Nodes found far away or of big size ('{far}'): {0}".format(invalid, far=self.__far))
+            raise ValueError("Nodes found far away or of big size "
+                             "('{far}'): {0}".format(invalid, far=self.__far))
