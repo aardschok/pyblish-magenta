@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 import maya.cmds as cmds
 import os
 
@@ -25,7 +26,7 @@ def is_subdir(path, root_dir):
 class ValidateSceneSetWorkspace(pyblish.api.ContextPlugin):
     """Validate the scene is inside the currently set Maya workspace"""
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidatePipelineOrder
     families = ['model']
     hosts = ['maya']
     category = 'scene'

@@ -1,6 +1,7 @@
 import re
 
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -8,7 +9,7 @@ def short_name(node):
     return node.rsplit("|", 1)[-1].rsplit(":", 1)[-1]
 
 
-class ValidateNoRename(pyblish.api.InstancePlugin):
+class ValidateShapeNoRename(pyblish.api.InstancePlugin):
     """Checks to see if there are nodes with the original names.
 
     If so it can be a cue for a scene/model that hasn't been cleaned yet.
@@ -16,13 +17,13 @@ class ValidateNoRename(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'
     optional = True
     version = (0, 1, 0)
-    label = 'No Default Naming'
+    label = 'Shape No Default Names'
 
     # set
     __simpleNames = ['pSphere', 'pCube', 'pCylinder', 'pCone', 'pPlane', 'pTorus',

@@ -1,10 +1,11 @@
 import pyblish.api
+import pyblish_magenta.api
 
 
 class ValidateUnitsFps(pyblish.api.ContextPlugin):
     """Validate the scene linear, angular and time units."""
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateSceneOrder
     label = "Units (fps)"
     families = ["rig", "model", "pointcache", "curves"]
 

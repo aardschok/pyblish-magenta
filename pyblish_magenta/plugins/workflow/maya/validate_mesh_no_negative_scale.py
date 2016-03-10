@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -14,7 +15,7 @@ class ValidateMeshNoNegativeScale(pyblish.api.Validator):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateMeshOrder
     families = ['proxy', 'rig', 'model']
     hosts = ['maya']
     label = 'Mesh No Negative Scale'

@@ -1,5 +1,6 @@
 from maya import cmds
 import pyblish.api
+import pyblish_magenta.api
 
 
 class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
@@ -11,7 +12,7 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     UVs for every face.
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateMeshOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

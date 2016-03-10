@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 

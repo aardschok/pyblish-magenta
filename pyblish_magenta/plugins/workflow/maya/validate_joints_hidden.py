@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -69,7 +70,7 @@ class ValidateJointsHidden(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['rig']
     hosts = ['maya']
     category = 'rig'

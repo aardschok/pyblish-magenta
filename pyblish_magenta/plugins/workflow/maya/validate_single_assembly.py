@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 
 
 class ValidateSingleAssembly(pyblish.api.InstancePlugin):
@@ -9,7 +10,7 @@ class ValidateSingleAssembly(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['rig', 'model']
     hosts = ['maya']
     category = 'rig'

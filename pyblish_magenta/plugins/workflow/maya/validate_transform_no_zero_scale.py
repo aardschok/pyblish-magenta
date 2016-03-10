@@ -1,8 +1,9 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
-class ValidateNoTransformZeroScale(pyblish.api.InstancePlugin):
+class ValidateTransformNoZeroScale(pyblish.api.InstancePlugin):
     """Validate there are no transforms with zero scale.
 
     Since object's can hardly be found in the viewport when they would have
@@ -16,7 +17,7 @@ class ValidateNoTransformZeroScale(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

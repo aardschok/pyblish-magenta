@@ -1,11 +1,12 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
 class ValidateMeshSingleUVSet(pyblish.api.InstancePlugin):
     """Ensure no multiple UV sets exist for each polygon mesh"""
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateMeshOrder
     families = ['model', 'pointcache']
     hosts = ['maya']
     category = 'uv'

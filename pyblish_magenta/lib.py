@@ -6,6 +6,14 @@ import pyblish.api
 from . import plugins
 
 
+# Grouped orders for Plug-ins to have structured list of plug-ins that artists
+# can understand
+ValidatePipelineOrder = pyblish.api.ValidatorOrder + 0.05
+ValidateContentsOrder = pyblish.api.ValidatorOrder + 0.1
+ValidateSceneOrder = pyblish.api.ValidatorOrder + 0.2
+ValidateMeshOrder = pyblish.api.ValidatorOrder + 0.3
+
+
 PLUGINS_PATH = os.path.dirname(plugins.__file__)
 PLUGIN_PATHS = [PLUGINS_PATH]
 

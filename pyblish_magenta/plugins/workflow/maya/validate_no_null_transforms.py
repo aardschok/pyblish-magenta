@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 import maya.cmds as cmds
 
 
@@ -31,7 +32,7 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'

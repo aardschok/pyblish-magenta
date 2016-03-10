@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -17,7 +18,7 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['layout']
     hosts = ['maya']
     category = 'layout'

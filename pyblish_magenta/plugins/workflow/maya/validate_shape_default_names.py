@@ -1,6 +1,7 @@
 import re
 
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -29,7 +30,7 @@ class ValidateShapeDefaultNames(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'

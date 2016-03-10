@@ -1,8 +1,10 @@
 import pyblish.api
+import pyblish_magenta.api
+
 from maya import cmds
 
 
-class ValidateZeroTransform(pyblish.api.InstancePlugin):
+class ValidateTransformZero(pyblish.api.InstancePlugin):
     """Transforms can't have any values
 
     To solve this issue, try freezing the transforms. So long
@@ -11,12 +13,12 @@ class ValidateZeroTransform(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ["model"]
     hosts = ["maya"]
     category = "geometry"
     version = (0, 1, 0)
-    label = "Zero Transform"
+    label = "Transform Zero (Freeze)"
 
     __identity = [1.0, 0.0, 0.0, 0.0,
                   0.0, 1.0, 0.0, 0.0,

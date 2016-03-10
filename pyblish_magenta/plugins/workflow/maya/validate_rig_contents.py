@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 
 
 class ValidateRigContents(pyblish.api.InstancePlugin):
@@ -10,7 +11,7 @@ class ValidateRigContents(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     label = "Rig Contents"
     families = ["rig"]
     hosts = ["maya"]

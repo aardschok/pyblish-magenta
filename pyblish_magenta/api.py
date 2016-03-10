@@ -1,3 +1,4 @@
+
 from .lib import (
     setup,
     register_plugins,
@@ -5,7 +6,12 @@ from .lib import (
     find_next_version,
     format_version,
     compute_publish_directory,
+    ValidatePipelineOrder,
+    ValidateContentsOrder,
+    ValidateMeshOrder,
+    ValidateSceneOrder
 )
+
 
 from .plugin import (
     Extractor
@@ -25,6 +31,10 @@ __all__ = [
     "find_next_version",
     "format_version",
     "compute_publish_directory",
+    "ValidatePipelineOrder",
+    "ValidateContentsOrder",
+    "ValidateMeshOrder",
+    "ValidateSceneOrder"
 
     "Extractor",
 

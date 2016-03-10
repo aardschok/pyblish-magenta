@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -13,7 +14,7 @@ class ValidateNoUnknownNodes(pyblish.api.InstancePlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model', 'layout', 'rig']
     hosts = ['maya']
     category = 'cleanup'

@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 import maya.cmds as cmds
 
 
@@ -12,7 +13,7 @@ def get_namespace(node_name):
 class ValidateNoNamespace(pyblish.api.InstancePlugin):
     """Ensure the nodes don't have a namespace"""
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model']
     hosts = ['maya']
     category = 'cleanup'

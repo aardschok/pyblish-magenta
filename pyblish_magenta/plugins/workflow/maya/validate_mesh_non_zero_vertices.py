@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 import pyblish_maya
 from maya import cmds
 
@@ -12,7 +13,7 @@ class ValidateMeshNonZeroVertices(pyblish.api.InstancePlugin):
     zero.
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateMeshOrder
     families = ['model']
     hosts = ['maya']
     category = 'geometry'

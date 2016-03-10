@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -10,7 +11,7 @@ class ValidateNoDefaultCameras(pyblish.api.InstancePlugin):
     settings when being loaded and sometimes being skipped.
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     families = ['animation']
     hosts = ['maya']
     version = (0, 1, 0)

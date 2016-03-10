@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -10,7 +11,7 @@ class ValidateNamespaceEmpty(pyblish.api.ContextPlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateSceneOrder
     families = ["model"]
     hosts = ["maya"]
     category = "scene"

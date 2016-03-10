@@ -1,11 +1,12 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
 class ValidateShapeRenderStats(pyblish.api.InstancePlugin):
     """Ensure all render stats are set to the default values."""
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateMeshOrder
     families = ['model']
     hosts = ['maya']
     category = 'model'

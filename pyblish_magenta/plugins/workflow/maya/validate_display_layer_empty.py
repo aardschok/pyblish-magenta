@@ -1,4 +1,5 @@
 import pyblish.api
+import pyblish_magenta.api
 from maya import cmds
 
 
@@ -15,7 +16,7 @@ class ValidateDisplayLayerEmpty(pyblish.api.ContextPlugin):
 
     """
 
-    order = pyblish.api.ValidatorOrder
+    order = pyblish_magenta.api.ValidateContentsOrder
     hosts = ['maya']
     category = 'scene'
     version = (0, 1, 0)
