@@ -6,9 +6,6 @@ from PySide import QtGui, QtCore
 from pyblish_magenta.vendor import inflection
 import lib
 
-# import pyblish_magenta.tools
-# print(pyblish_magenta.tools)
-
 
 self = sys.modules[__name__]
 self._window = None
@@ -19,17 +16,9 @@ class Window(QtGui.QDialog):
         super(Window, self).__init__(parent)
         self.setWindowTitle("Instance Creator")
 
-        header = QtGui.QWidget()
         body = QtGui.QWidget()
         lists = QtGui.QWidget()
-
-        name_fld = QtGui.QLineEdit()
-        create_btn = QtGui.QPushButton("Create")
-
-        layout = QtGui.QHBoxLayout(header)
-        layout.addWidget(name_fld)
-        layout.addWidget(create_btn)
-        layout.setContentsMargins(0, 0, 0, 0)
+        footer = QtGui.QWidget()
 
         list1Container = QtGui.QWidget()
         list2Container = QtGui.QWidget()
@@ -74,16 +63,21 @@ class Window(QtGui.QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout = QtGui.QVBoxLayout(body)
-        layout.addWidget(options, 0, QtCore.Qt.AlignLeft)
         layout.addWidget(lists)
+        layout.addWidget(options, 0, QtCore.Qt.AlignLeft)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        create_btn = QtGui.QPushButton("Create")
+
+        layout = QtGui.QHBoxLayout(footer)
+        layout.addWidget(create_btn)
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(header)
         layout.addWidget(body)
+        layout.addWidget(footer)
 
         self.create_btn = create_btn
-        self.name_fld = name_fld
         self.subset_fld = subset_fld
         self.list1 = list1
         self.list2 = list2
@@ -91,8 +85,6 @@ class Window(QtGui.QDialog):
         self.autoclose_chk = autoclose_chk
 
         create_btn.clicked.connect(self.on_create)
-        name_fld.textChanged.connect(self.on_namechanged)
-        name_fld.returnPressed.connect(self.on_create)
         list1.currentItemChanged.connect(self.on_list1changed)
         list2.currentItemChanged.connect(self.on_list2changed)
 
@@ -105,7 +97,6 @@ class Window(QtGui.QDialog):
             item.setData(QtCore.Qt.UserRole + 2, family.get("help"))
             self.list1.addItem(item)
 
-        self.name_fld.setText("myInstance")
         self.list1.setCurrentItem(self.list1.item(0))
         self.list2.setCurrentItem(self.list2.item(0))
 
@@ -126,21 +117,17 @@ class Window(QtGui.QDialog):
         self.subset_fld.setText(current.text())
 
     def on_create(self):
-        name = self.name_fld.text()
-        name = inflection.transliterate(name)
+
         family = self.list1.currentItem().text()
         subset = self.subset_fld.text()
+        name = u"{0}_{1}".format(family, subset)
+        name = inflection.transliterate(name)
+
         use_selection = self.useselection_chk.checkState()
         lib.create(name, family, subset, use_selection)
 
         if self.autoclose_chk.checkState():
             self.close()
-
-    def on_namechanged(self, name):
-        if name:
-            self.create_btn.setEnabled(True)
-        else:
-            self.create_btn.setEnabled(False)
 
 
 def show():
