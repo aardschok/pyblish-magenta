@@ -120,11 +120,9 @@ class Window(QtGui.QDialog):
 
         family = self.list1.currentItem().text()
         subset = self.subset_fld.text()
-        name = u"{0}_{1}".format(family, subset)
-        name = inflection.transliterate(name)
 
         use_selection = self.useselection_chk.checkState()
-        lib.create(name, family, subset, use_selection)
+        lib.create(family, subset, use_selection)
 
         if self.autoclose_chk.checkState():
             self.close()

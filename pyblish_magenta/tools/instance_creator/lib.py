@@ -58,11 +58,10 @@ def register_family(item):
     self.families.append(item)
 
 
-def create(name, family, subset=None, use_selection=False):
+def create(family, subset=None, use_selection=False):
     """Create new instance
 
     Arguments:
-        name (str): Name of instance, will be suffixes with "_INST"
         family (str): Name of family, prefixed with subset
         subset (str): Name of subset
         use_selection (bool): Use selection to create this instance?
@@ -79,11 +78,11 @@ def create(name, family, subset=None, use_selection=False):
     if not use_selection:
         cmds.select(deselect=True)
 
-    instance = cmds.sets(name=name + "_INST")
+    instance = cmds.sets(name="{0}_{1}_INST".format(family, subset))
 
     for item in attrs:
         key = item["key"]
-        value = item["value"](name, family)
+        value = item["value"](family, subset)
 
         if isinstance(value, bool):
             add_type = {"attributeType": "bool"}
