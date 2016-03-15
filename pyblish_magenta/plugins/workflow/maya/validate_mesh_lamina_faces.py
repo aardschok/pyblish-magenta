@@ -27,4 +27,5 @@ class ValidateMeshLaminaFaces(pyblish.api.InstancePlugin):
                 invalid.append(mesh)
 
         if invalid:
-            raise ValueError("Meshes found with lamina faces: {0}".format(invalid))
+            raise ValueError("Meshes found with lamina faces: "
+                             "{0}".format(invalid))

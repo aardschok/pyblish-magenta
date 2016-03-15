@@ -34,4 +34,5 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
                 continue
 
         if invalid:
-            raise RuntimeError("Meshes found in instance without valid UVs: {0}".format(invalid))
+            raise RuntimeError("Meshes found in instance without "
+                               "valid UVs: {0}".format(invalid))
