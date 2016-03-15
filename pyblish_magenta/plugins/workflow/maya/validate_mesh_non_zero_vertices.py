@@ -38,7 +38,7 @@ class ValidateMeshNonZeroVertices(pyblish.api.InstancePlugin):
 
     def process(self, instance):
         """Process all meshes"""
-        meshes = cmds.ls(instance, type='mesh', dag=True, long=True)
+        meshes = cmds.ls(instance, type='mesh', long=True)
 
         invalid = [mesh for mesh in meshes if self.is_invalid(mesh)]
         if invalid:
@@ -47,7 +47,7 @@ class ValidateMeshNonZeroVertices(pyblish.api.InstancePlugin):
 
     def repair(self, instance):
         """Repair the meshes by 'baking' offsets into the input mesh"""
-        meshes = cmds.ls(instance, type='mesh', dag=True, long=True)
+        meshes = cmds.ls(instance, type='mesh', long=True)
         invalid = [mesh for mesh in meshes if self.is_invalid(mesh)]
 
         # TODO: Find a better way to reset values whilst preserving offsets
