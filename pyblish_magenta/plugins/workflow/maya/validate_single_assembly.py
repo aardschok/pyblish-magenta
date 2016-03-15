@@ -26,6 +26,6 @@ class ValidateSingleAssembly(pyblish.api.InstancePlugin):
         assemblies = set(assemblies)
 
         assert len(assemblies) > 0, (
-            "One assembly required for %s" % instance)
+            "One assembly required for: %s (currently empty?)" % instance)
         assert len(assemblies) < 2, (
             'Multiple assemblies found: %s' % assemblies)
