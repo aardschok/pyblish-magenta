@@ -70,13 +70,12 @@ class CollectInstances(pyblish.api.ContextPlugin):
                 members = cmds.ls(members, long=True)
 
                 # Include all parents and children
-                parents = cmds.listRelatives(members,
-                                             allDescendents=True,
-                                             fullPath=True,
-                                             noIntermediate=True) or []
+                parents = get_upstream_hierarchy_fast(members)
 
-                # Include all children
-                children = get_upstream_hierarchy_fast(members)
+                children = cmds.listRelatives(parents,
+                                              allDescendents=True,
+                                              fullPath=True,
+                                              noIntermediate=True) or []
 
                 nodes = members + parents + children
 
