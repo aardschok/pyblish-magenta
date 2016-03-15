@@ -25,6 +25,7 @@ class ValidateSceneDimensions(pyblish.api.InstancePlugin):
     def process(self, instance):
         """Process all the nodes in the instance"""
         shapes = cmds.ls(instance, shapes=True, long=True)
+        if not shapes: return
         transforms = cmds.listRelatives(shapes, parent=True, fullPath=True)
 
         invalid = []
