@@ -78,6 +78,9 @@ class CollectInstances(pyblish.api.ContextPlugin):
                                               allDescendents=True,
                                               fullPath=True) or []
 
+                # Exclude intermediate objects
+                children = cmds.ls(children, noIntermediate=True, long=True)
+
                 nodes = members + parents + children
 
                 # Include all history
