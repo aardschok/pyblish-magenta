@@ -83,13 +83,6 @@ class CollectInstances(pyblish.api.ContextPlugin):
 
                 nodes = members + parents + children
 
-                # Include all history
-                include_history = False  # disable for now
-                if include_history:
-                    history = cmds.listHistory(nodes,
-                                               leaf=False) or []
-                    nodes += history
-
                 if self.verbose:
                     self.log.debug("Collecting nodes: %s" % nodes)
                 instance[:] = nodes
