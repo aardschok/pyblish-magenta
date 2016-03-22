@@ -12,21 +12,20 @@ def short_name(node):
 class ValidateShapeDefaultNames(pyblish.api.InstancePlugin):
     """Validates that Shape names are using Maya's default format.
 
-    .. note::
-        When you create a new polygon cube Maya will name the transform
-        and shape respectively:
-        - ['pCube1', 'pCubeShape1']
-        If you rename it to `bar1` it will become:
-        - ['bar1', 'barShape1']
-        Then if you rename it to `bar` it will become:
-        - ['bar', 'barShape']
-        Rename it again to `bar1` it will differ as opposed to before:
-        - ['bar1', 'bar1Shape']
-        Note that bar1Shape != barShape1
-        Thus the suffix number can be either in front of Shape or behind it.
-        Then it becomes harder to define where what number should be when a
-        node contains multiple shapes, for example with many controls in
-        rigs existing of multiple curves.
+    When you create a new polygon cube Maya will name the transform
+    and shape respectively:
+    - ['pCube1', 'pCubeShape1']
+    If you rename it to `bar1` it will become:
+    - ['bar1', 'barShape1']
+    Then if you rename it to `bar` it will become:
+    - ['bar', 'barShape']
+    Rename it again to `bar1` it will differ as opposed to before:
+    - ['bar1', 'bar1Shape']
+    Note that bar1Shape != barShape1
+    Thus the suffix number can be either in front of Shape or behind it.
+    Then it becomes harder to define where what number should be when a
+    node contains multiple shapes, for example with many controls in
+    rigs existing of multiple curves.
 
     """
 

@@ -24,9 +24,11 @@ class ValidateReferencesOnly(pyblish.api.InstancePlugin):
             member_nodes = cmds.ls(instance, long=True)
             referenced_nodes_lookup = frozenset(referenced_nodes)
 
-            non_referenced_nodes = [node for node in member_nodes if node not in referenced_nodes_lookup]
+            non_referenced_nodes = [node for node in member_nodes if
+                                    node not in referenced_nodes_lookup]
             if non_referenced_nodes:
-                raise ValueError("Non-referenced nodes found: {0}".format(non_referenced_nodes))
+                raise ValueError("Non-referenced nodes found: "
+                                 "{0}".format(non_referenced_nodes))
 
         # Another way of doing it (which might be slower (untested))
         # invalid = []
