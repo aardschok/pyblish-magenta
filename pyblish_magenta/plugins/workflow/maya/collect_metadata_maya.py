@@ -7,7 +7,7 @@ class CollectMetadataMaya(pyblish.api.ContextPlugin):
     order = pyblish.api.CollectorOrder + 0.21
     label = "Maya Metadata"
     hosts = ["maya"]
-    families = ["model", "rig", "pointcache", "package"]
+    families = ["model", "rig", "pointcache", "layout", "look", "package"]
 
     def process(self, context):
         from maya import cmds

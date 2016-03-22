@@ -7,7 +7,7 @@ class ExtractOrigin(pyblish_magenta.api.Extractor):
     """Extract origin metadata from scene"""
 
     label = "Metadata"
-    families = ["model", "rig", "pointcache"]
+    families = ["model", "rig", "pointcache", "look", "layout"]
 
     def process(self, instance):
         temp_dir = self.temp_dir(instance)
