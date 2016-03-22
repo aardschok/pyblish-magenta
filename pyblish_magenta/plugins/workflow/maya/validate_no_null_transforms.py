@@ -5,7 +5,9 @@ import maya.cmds as cmds
 
 def has_shape_children(node):
     # Check if any descendants
-    allDescendents = cmds.listRelatives(node, allDescendents=True, fullPath=True)
+    allDescendents = cmds.listRelatives(node,
+                                        allDescendents=True,
+                                        fullPath=True)
     if not allDescendents:
         return False
 
@@ -25,28 +27,33 @@ def has_shape_children(node):
 class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     """Ensure no null transforms are in the scene.
 
-   We will consider transforms with only intermediate objects under it to be null transform as well. 
-   
-   .. note:: `listRelatives()` has a noIntermediate parameter; though it doesn't do anything
-             when used together with the children parameter, but only with shapes=True)
+    We will consider transforms with only intermediate objects under it to be
+    null transform as well.
 
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model']
+    families = ['model', 'layout']
     hosts = ['maya']
     category = 'cleanup'
     version = (0, 1, 0)
     label = 'No Empty/Null Transforms'
 
-    def process(self, instance):
-        """Process all the transform nodes in the instance """
+    def _get_invalid(self, instance):
+        """Return invalid transforms in instance"""
+
         transforms = cmds.ls(instance, type='transform', long=True)
-        
+
         invalid = []
         for transform in transforms:
             if not has_shape_children(transform):
                 invalid.append(transform)
+
+        return invalid
+
+    def process(self, instance):
+        """Process all the transform nodes in the instance """
+        invalid = self._get_invalid(instance)
                 
         if invalid:
             raise ValueError("Empty transforms found: {0}".format(invalid))
@@ -54,17 +61,11 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     def repair(self, instance):
         """Delete all null transforms.
 
-        Note: If the node is used elsewhere (eg. connection to attributes or in history) deletion might mess up things.
+        Note: If the node is used elsewhere (eg. connection to attributes or
+        in history) deletion might mess up things.
 
         """
-        
-        member_nodes = cmds.sets(instance.name, q=1)
-        transforms = cmds.ls(member_nodes, type='transform', long=True)
-        
-        invalid = []
-        for transform in transforms:
-            if not has_shape_children(transform):
-                invalid.append(transform)
+        invalid = self._get_invalid(instance)
         
         if invalid:
             cmds.delete(invalid)
