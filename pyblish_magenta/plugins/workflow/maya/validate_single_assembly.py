@@ -11,10 +11,8 @@ class ValidateSingleAssembly(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['rig']
+    families = ['rig', 'layout']
     hosts = ['maya']
-    category = 'rig'
-    version = (0, 1, 0)
     label = 'Single Assembly'
 
     def process(self, instance):
