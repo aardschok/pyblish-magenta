@@ -45,17 +45,13 @@ class Window(QtGui.QDialog):
         layout = QtGui.QGridLayout(options)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        useselection_chk = QtGui.QCheckBox()
-        useselection_lbl = QtGui.QLabel("Use selection")
+        useselection_chk = QtGui.QCheckBox("Use selection")
         useselection_chk.setCheckState(QtCore.Qt.Checked)
         layout.addWidget(useselection_chk, 0, 0)
-        layout.addWidget(useselection_lbl, 0, 1)
 
-        autoclose_chk = QtGui.QCheckBox()
-        autoclose_lbl = QtGui.QLabel("Close after creation")
+        autoclose_chk = QtGui.QCheckBox("Close after creation")
         autoclose_chk.setCheckState(QtCore.Qt.Checked)
         layout.addWidget(autoclose_chk, 1, 0)
-        layout.addWidget(autoclose_lbl, 1, 1)
 
         layout = QtGui.QHBoxLayout(lists)
         layout.addWidget(list1Container)
