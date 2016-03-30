@@ -1,8 +1,10 @@
 import pyblish
 import pyblish_magenta.api
 
+from pyblish_magenta.action import SelectInvalidAction
 
-class ValidateNoAnimation(pyblish.api.InstancePlugin):
+
+class ValidateNoAnimation(pyblish.api.Validator):
     """Ensure no keyframes on nodes in the Instance.
 
     Even though a Model would extract without animCurves correctly this avoids
@@ -16,11 +18,21 @@ class ValidateNoAnimation(pyblish.api.InstancePlugin):
     hosts = ["maya"]
     families = ["model"]
     optional = True
+    actions = [SelectInvalidAction]
 
-    def process(self, instance):
+    @staticmethod
+    def get_invalid(instance):
         from maya import cmds
 
         curves = cmds.keyframe(instance, q=1, name=True)
         if curves:
-            invalid = list(set(cmds.listConnections(curves)))
+            return list(set(cmds.listConnections(curves)))
+
+        return []
+
+    def process(self, instance):
+
+        invalid = self.get_invalid(instance)
+
+        if invalid:
             raise RuntimeError("Keyframes found: {0}".format(invalid))

@@ -1,6 +1,7 @@
 import pyblish.api
 import pyblish_magenta.api
 from maya import cmds
+from pyblish_magenta.action import SelectInvalidAction
 
 
 SUFFIX_NAMING_TABLE = {'mesh': ["_GEO", "_GES", "_GEP"],
@@ -11,8 +12,14 @@ SUFFIX_NAMING_TABLE = {'mesh': ["_GEO", "_GES", "_GEP"],
 ALLOW_IF_NOT_IN_SUFFIX_TABLE = True
 
 
-class ValidateTransformNamingSuffix(pyblish.api.InstancePlugin):
+class ValidateTransformNamingSuffix(pyblish.api.Validator):
     """Validates transform suffix based on the type of its children shapes.
+
+    Suffices must be:
+        - mesh: _GEO or _GES or _GEP
+        - nurbsCurve: _CRV
+        - nurbsSurface: _NRB
+        - null/group: _GRP
 
     .. warning::
         This grabs the first child shape as a reference and doesn't use the
@@ -27,8 +34,10 @@ class ValidateTransformNamingSuffix(pyblish.api.InstancePlugin):
     optional = True
     version = (0, 1, 0)
     label = 'Suffix Naming Conventions'
+    actions = [SelectInvalidAction]
 
-    def is_valid_name(self, node_name, shape_type):
+    @staticmethod
+    def is_valid_name(node_name, shape_type):
         """Return whether node's name is correct.
 
         The correctness for a transform's suffix is dependent on what
@@ -48,8 +57,8 @@ class ValidateTransformNamingSuffix(pyblish.api.InstancePlugin):
                     return True
             return False
 
-    def process(self, instance):
-        """Process all the nodes in the instance"""
+    @classmethod
+    def get_invalid(cls, instance):
         transforms = cmds.ls(instance, type='transform', long=True)
 
         invalid = []
@@ -57,13 +66,20 @@ class ValidateTransformNamingSuffix(pyblish.api.InstancePlugin):
             shapes = cmds.listRelatives(transform, shapes=True, fullPath=True)
 
             if not shapes:  # null/group transform
-                if not self.is_valid_name(transform, None):
+                if not cls.is_valid_name(transform, None):
                     invalid.append(transform)
 
             else:  # based on actual shape type of first child shape
                 shape_type = cmds.nodeType(shapes[0])
-                if not self.is_valid_name(transform, shape_type):
+                if not cls.is_valid_name(transform, shape_type):
                     invalid.append(transform)
+
+        return invalid
+
+    def process(self, instance):
+        """Process all the nodes in the instance"""
+
+        invalid = self.get_invalid(instance)
 
         if invalid:
             raise ValueError("Incorrectly named geometry "
