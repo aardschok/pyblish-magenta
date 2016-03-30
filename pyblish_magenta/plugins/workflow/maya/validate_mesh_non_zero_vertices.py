@@ -1,10 +1,13 @@
 import pyblish.api
 import pyblish_magenta.api
 import pyblish_maya
+
+from pyblish_magenta.action import SelectInvalidAction
+
 from maya import cmds
 
 
-class ValidateMeshNonZeroVertices(pyblish.api.InstancePlugin):
+class ValidateMeshNonZeroVertices(pyblish.api.Validator):
     """Validate meshes have no internal points offsets (#34)
 
     Vertices can have internal vertex offset that mess with subsequent
@@ -19,28 +22,36 @@ class ValidateMeshNonZeroVertices(pyblish.api.InstancePlugin):
     category = 'geometry'
     version = (0, 1, 0)
     label = 'Mesh Non Zero Vertices'
+    actions = [SelectInvalidAction]
 
-    __tolerance = 1e-8
+    _tolerance = 1e-8
 
-    def _iter_internal_pts(self, mesh):
+    @staticmethod
+    def _iter_internal_pts(mesh):
         """Yield the internal offset values for each point of the mesh"""
         num_pts = cmds.getAttr('{0}.pnts'.format(mesh), size=True)
         for i in range(num_pts):
             attr = '{0}.pnts[{1}]'.format(mesh, i)
             yield cmds.getAttr(attr)[0]
 
-    def is_invalid(self, mesh):
-        pts = self._iter_internal_pts(mesh)
+    @classmethod
+    def is_invalid(cls, mesh):
+        pts = cls._iter_internal_pts(mesh)
         for pt in pts:
-            if any(abs(v) > self.__tolerance for v in pt):
+            if any(abs(v) > cls._tolerance for v in pt):
                 return True
         return False
 
+    @classmethod
+    def get_invalid(cls, instance):
+
+        meshes = cmds.ls(instance, type='mesh', long=True)
+        return [mesh for mesh in meshes if cls.is_invalid(mesh)]
+
     def process(self, instance):
         """Process all meshes"""
-        meshes = cmds.ls(instance, type='mesh', long=True)
+        invalid = self.get_invalid(instance)
 
-        invalid = [mesh for mesh in meshes if self.is_invalid(mesh)]
         if invalid:
             raise RuntimeError("Meshes found with non-zero vertices: "
                                "{0}".format(invalid))
