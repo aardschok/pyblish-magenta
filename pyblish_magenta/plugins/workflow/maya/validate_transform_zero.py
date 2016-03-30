@@ -1,10 +1,12 @@
 import pyblish.api
 import pyblish_magenta.api
 
+from pyblish_magenta.action import SelectInvalidAction
+
 from maya import cmds
 
 
-class ValidateTransformZero(pyblish.api.InstancePlugin):
+class ValidateTransformZero(pyblish.api.Validator):
     """Transforms can't have any values
 
     To solve this issue, try freezing the transforms. So long
@@ -19,15 +21,17 @@ class ValidateTransformZero(pyblish.api.InstancePlugin):
     category = "geometry"
     version = (0, 1, 0)
     label = "Transform Zero (Freeze)"
+    actions = [SelectInvalidAction]
 
-    __identity = [1.0, 0.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0, 0.0,
-                  0.0, 0.0, 1.0, 0.0,
-                  0.0, 0.0, 0.0, 1.0]
-    __tolerance = 1e-30
+    _identity = [1.0, 0.0, 0.0, 0.0,
+                 0.0, 1.0, 0.0, 0.0,
+                 0.0, 0.0, 1.0, 0.0,
+                 0.0, 0.0, 0.0, 1.0]
+    _tolerance = 1e-30
 
-    def process(self, instance):
-        """Process all the nodes in the instance "objectSet"
+    @classmethod
+    def get_invalid(cls, instance):
+        """Returns the invalid transforms in the instance.
 
         This is the same as checking:
         - translate == [0, 0, 0] and rotate == [0, 0, 0] and
@@ -37,6 +41,9 @@ class ValidateTransformZero(pyblish.api.InstancePlugin):
             This will also catch camera transforms if those
             are in the instances.
 
+        Returns:
+            list: Transforms that are not identity matrix
+
         """
 
         transforms = cmds.ls(instance, type="transform")
@@ -44,9 +51,16 @@ class ValidateTransformZero(pyblish.api.InstancePlugin):
         invalid = []
         for transform in transforms:
             mat = cmds.xform(transform, q=1, matrix=True, objectSpace=True)
-            if not all(abs(x-y) < self.__tolerance
-                       for x, y in zip(self.__identity, mat)):
+            if not all(abs(x-y) < cls._tolerance
+                       for x, y in zip(cls._identity, mat)):
                 invalid.append(transform)
+
+        return invalid
+
+    def process(self, instance):
+        """Process all the nodes in the instance "objectSet"""
+
+        invalid = self.get_invalid(instance)
 
         if invalid:
             raise ValueError("Nodes found with transform "
