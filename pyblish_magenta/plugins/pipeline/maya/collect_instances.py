@@ -63,33 +63,31 @@ class CollectInstances(pyblish.api.ContextPlugin):
 
             self.log.info("Collecting: %s" % objset)
 
-            with pyblish_maya.maintained_selection():
+            # Maintain nested object sets
+            members = cmds.sets(objset, query=True)
+            members = cmds.ls(members, long=True)
 
-                # Maintain nested object sets
-                members = cmds.sets(objset, query=True)
-                members = cmds.ls(members, long=True)
+            # Include all parents and children
+            parents = get_upstream_hierarchy_fast(members)
 
-                # Include all parents and children
-                parents = get_upstream_hierarchy_fast(members)
+            children = cmds.listRelatives(members + parents,
+                                          allDescendents=True,
+                                          fullPath=True) or []
 
-                children = cmds.listRelatives(members + parents,
-                                              allDescendents=True,
-                                              fullPath=True) or []
+            # Exclude intermediate objects
+            children = cmds.ls(children, noIntermediate=True, long=True)
 
-                # Exclude intermediate objects
-                children = cmds.ls(children, noIntermediate=True, long=True)
+            nodes = members + parents + children
 
-                nodes = members + parents + children
+            # Ensure unique
+            nodes = list(set(nodes))
 
-                # Ensure unique
-                nodes = list(set(nodes))
+            if self.verbose:
+                self.log.debug("Collecting nodes: %s" % nodes)
+            instance[:] = nodes
 
-                if self.verbose:
-                    self.log.debug("Collecting nodes: %s" % nodes)
-                instance[:] = nodes
-
-                # Maintain original contents of object set
-                instance.set_data("setMembers", members)
+            # Maintain original contents of object set
+            instance.set_data("setMembers", members)
 
             # Get user data from user defined attributes
             user_data = []
