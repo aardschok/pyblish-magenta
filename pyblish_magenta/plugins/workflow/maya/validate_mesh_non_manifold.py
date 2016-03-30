@@ -4,7 +4,7 @@ import pyblish_magenta.api
 from pyblish_magenta.action import SelectInvalidAction
 
 
-class ValidateMeshNonManifold(pyblish.api.InstancePlugin):
+class ValidateMeshNonManifold(pyblish.api.Validator):
     """Ensure that meshes don't have non-manifold edges or vertices"""
 
     order = pyblish_magenta.api.ValidateMeshOrder
