@@ -61,7 +61,7 @@ class CollectInstances(pyblish.api.ContextPlugin):
                     }.iteritems():
                 instance.set_data(key, default)
 
-            self.log.info("Found: %s" % objset)
+            self.log.info("Collecting: %s" % objset)
 
             with pyblish_maya.maintained_selection():
 
@@ -72,8 +72,6 @@ class CollectInstances(pyblish.api.ContextPlugin):
                 # Include all parents and children
                 parents = get_upstream_hierarchy_fast(members)
 
-                self.log.info(members + parents)
-
                 children = cmds.listRelatives(members + parents,
                                               allDescendents=True,
                                               fullPath=True) or []
@@ -82,6 +80,9 @@ class CollectInstances(pyblish.api.ContextPlugin):
                 children = cmds.ls(children, noIntermediate=True, long=True)
 
                 nodes = members + parents + children
+
+                # Ensure unique
+                nodes = list(set(nodes))
 
                 if self.verbose:
                     self.log.debug("Collecting nodes: %s" % nodes)
