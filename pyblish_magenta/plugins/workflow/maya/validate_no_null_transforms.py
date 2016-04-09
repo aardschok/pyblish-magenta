@@ -33,7 +33,7 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model', 'layout']
+    families = ['model']
     hosts = ['maya']
     category = 'cleanup'
     version = (0, 1, 0)
