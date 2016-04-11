@@ -2,6 +2,47 @@ import pyblish.api
 import pyblish_magenta.api
 from maya import cmds
 
+from pyblish_magenta.action import SelectInvalidAction
+
+
+class RepairFailedEditsAction(pyblish.api.Action):
+    label = "Remove failed edits"
+    on = "failed"  # This action is only available on a failed plug-in
+    icon = "wrench"  # Icon from Awesome Icon
+
+    def process(self, context, plugin):
+        from maya import cmds
+        self.log.info("Finding bad nodes..")
+
+        # Get the errored instances
+        errored_instances = []
+        for result in context.data["results"]:
+            if result["error"] is not None and result["instance"] is not None:
+                if result["error"]:
+                    instance = result["instance"]
+                    errored_instances.append(instance)
+
+        # Apply pyblish.logic to get the instances for the plug-in
+        instances = pyblish.api.instances_by_plugin(errored_instances, plugin)
+
+        # Get the nodes from the all instances that ran through this plug-in
+        invalid = []
+        for instance in instances:
+            invalid_nodes = plugin.get_invalid(instance)
+            invalid.extend(invalid_nodes)
+
+        if not invalid:
+            self.log.info("No invalid nodes found.")
+            return
+
+        for ref in invalid:
+            self.log.info("Remove failed edits for: {0}".format(ref))
+            cmds.referenceEdit(ref,
+                               removeEdits=True,
+                               failedEdits=True,
+                               successfulEdits=False)
+        self.log.info("Removed failed edits")
+
 
 class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
     """Validate that all referenced nodes' reference nodes don't have failed
@@ -22,16 +63,10 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
     optional = True
     version = (0, 1, 0)
     label = 'References Failed Edits'
+    actions = [SelectInvalidAction, RepairFailedEditsAction]
 
-    def process(self, instance):
-        """Process all the nodes in the instance
-
-        Terminology:
-            reference node: The node that is the actual reference containing
-                the nodes (type: referenceNode)
-            referenced nodes: The nodes contained within the reference
-                (type: any type of nodes)
-        """
+    @staticmethod
+    def get_invalid(instance):
 
         referenced_nodes = cmds.ls(instance, referencedNodes=True, long=True)
         if not referenced_nodes:
@@ -54,6 +89,20 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
                                                successfulEdits=False)
             if failed_edits:
                 invalid.append(reference_node)
+
+        return invalid
+
+    def process(self, instance):
+        """Process all the nodes in the instance
+
+        Terminology:
+            reference node: The node that is the actual reference containing
+                the nodes (type: referenceNode)
+            referenced nodes: The nodes contained within the reference
+                (type: any type of nodes)
+        """
+
+        invalid = self.get_invalid(instance)
 
         if invalid:
             raise ValueError("Reference nodes found with failed "
