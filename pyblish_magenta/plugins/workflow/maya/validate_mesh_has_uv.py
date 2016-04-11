@@ -2,6 +2,8 @@ from maya import cmds
 import pyblish.api
 import pyblish_magenta.api
 
+from pyblish_magenta.action import SelectInvalidAction
+
 
 class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     """Validate the current mesh has UVs.
@@ -17,8 +19,10 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     hosts = ['maya']
     category = 'geometry'
     label = 'Mesh Has UVs'
+    actions = [SelectInvalidAction]
 
-    def process(self, instance):
+    @staticmethod
+    def get_invalid(instance):
         invalid = []
 
         for node in cmds.ls(instance, type='mesh'):
@@ -28,10 +32,18 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
                 invalid.append(node)
                 continue
 
+            # Must have at least amount of UVs as amount of vertices which
+            # provides the assumption that at least every vertex is in the UVs
             vertex = cmds.polyEvaluate(node, vertex=True)
             if uv < vertex:
                 invalid.append(node)
                 continue
+
+        return invalid
+
+    def process(self, instance):
+
+        invalid = self.get_invalid(instance)
 
         if invalid:
             raise RuntimeError("Meshes found in instance without "
