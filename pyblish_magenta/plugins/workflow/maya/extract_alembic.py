@@ -57,7 +57,7 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
     """
 
     label = "Alembic"
-    families = ["pointcache", "proxy"]
+    families = ["model", "pointcache", "proxy"]
     optional = True
 
     @property
