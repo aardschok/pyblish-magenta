@@ -59,7 +59,7 @@ class CollectInstances(pyblish.api.ContextPlugin):
                     "name": short_name[:-5],
                     "subset": "default"
                     }.iteritems():
-                instance.set_data(key, default)
+                instance.data[key] = default
 
             self.log.info("Collecting: %s" % objset)
 
@@ -87,7 +87,7 @@ class CollectInstances(pyblish.api.ContextPlugin):
             instance[:] = nodes
 
             # Maintain original contents of object set
-            instance.set_data("setMembers", members)
+            instance.data["setMembers"] = members
 
             # Get user data from user defined attributes
             user_data = []
@@ -103,9 +103,9 @@ class CollectInstances(pyblish.api.ContextPlugin):
 
             # Assign user data to the instance
             for key, value in user_data:
-                instance.set_data(key, value=value)
+                instance.data[key] = value
 
-            assert instance.has_data("family"), "No family data in instance"
+            assert "family" in instance.data, "No family data in instance"
 
         context[:] = sorted(
             context, key=lambda instance: instance.data("family"))
