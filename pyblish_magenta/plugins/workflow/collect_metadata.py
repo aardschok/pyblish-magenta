@@ -14,10 +14,18 @@ class CollectMetadata(pyblish.api.ContextPlugin):
     families = ["model", "rig", "pointcache", "package"]
 
     mapping = {
+
+        # origin
         "topic": "topic",
         "author": "user",
         "date": "date",
-        "filename": "currentFile"
+        "filename": "currentFile",
+
+        # frame ranges
+        # At this point when collected the handles are NOT included
+        "startFrame": "startFrame",
+        "endFrame": "endFrame",
+        "handles": "handles",
     }
 
     def process(self, context):
