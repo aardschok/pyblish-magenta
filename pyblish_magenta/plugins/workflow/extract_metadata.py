@@ -3,13 +3,13 @@ import json
 import pyblish_magenta.api
 
 
-class ExtractOrigin(pyblish_magenta.api.Extractor):
+class ExtractMetadata(pyblish_magenta.api.Extractor):
     """Extract origin metadata from scene"""
 
     label = "Metadata"
-    families = ["model", "rig", "pointcache", "look", "layout"]
 
     def process(self, instance):
+
         temp_dir = self.temp_dir(instance)
         temp_file = os.path.join(temp_dir, "metadata.meta")
 
