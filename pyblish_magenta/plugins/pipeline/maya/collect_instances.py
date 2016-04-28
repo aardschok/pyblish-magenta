@@ -38,6 +38,8 @@ class CollectInstances(pyblish.api.ContextPlugin):
     label = "Maya Instances"
     verbose = False
 
+    _ignore_families = ["look"]
+
     def process(self, context):
         from maya import cmds
 
@@ -48,15 +50,21 @@ class CollectInstances(pyblish.api.ContextPlugin):
                               recursive=True):  # Include namespace
 
             try:
-                cmds.getAttr(objset + ".family")
+                family = cmds.getAttr(objset + ".family")
             except ValueError:
                 self.log.error("Found: %s found, but no family." % objset)
+                continue
+
+            if family in self._ignore_families:
+                self.log.info("Ignoring instance {0} "
+                              "of family {1}".format(objset, family))
                 continue
 
             instance = context.create_instance(objset)
             short_name = objset.rsplit("|", 1)[-1].rsplit(":", 1)[-1]
             for key, default in {
                     "name": short_name[:-5],
+                    "objSetName": objset,
                     "subset": "default"
                     }.iteritems():
                 instance.data[key] = default
@@ -106,6 +114,9 @@ class CollectInstances(pyblish.api.ContextPlugin):
                 instance.data[key] = value
 
             assert "family" in instance.data, "No family data in instance"
+            assert "objSetName" in instance.data, (
+                "No objectSet name data in instance"
+            )
 
         context[:] = sorted(
             context, key=lambda instance: instance.data("family"))

@@ -16,7 +16,11 @@ class CollectComment(pyblish.api.InstancePlugin):
 
     def process(self, instance):
 
-        node_attr = "{0}.notes".format(instance.id)
+        node = instance.data.get("objSetName", None)
+        if not node:
+            return
+
+        node_attr = "{0}.notes".format(node)
         if not cmds.objExists(node_attr):
             return
 

@@ -46,14 +46,16 @@ class CollectMetadataMaya(pyblish.api.ContextPlugin):
 
         for instance in context:
 
-            if not cmds.objExists(instance.id):
-                self.log.info("{0} is not a Maya node".format(instance.id))
+            object_set = instance.data['objSetName']
+
+            if not cmds.objExists(object_set):
+                self.log.info("{0} is not a Maya node".format(object_set))
                 continue
 
             userattrs = dict()
-            for attr in cmds.listAttr(instance.id, userDefined=True):
+            for attr in cmds.listAttr(object_set, userDefined=True):
                 try:
-                    value = cmds.getAttr(instance.id + "." + attr)
+                    value = cmds.getAttr(object_set + "." + attr)
                 except RuntimeError:
                     continue
 
