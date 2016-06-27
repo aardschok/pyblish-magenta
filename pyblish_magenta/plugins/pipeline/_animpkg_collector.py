@@ -7,8 +7,18 @@ class CollectAnimPkg(pyblish.api.ContextPlugin):
     order = pyblish.api.Collector.order + 0.1
 
     def process(self, context):
-        pointcaches = [i.id for i in context
-                       if i.data.get("family") == "pointcache"]
+
+        # Collect pointcache object sets
+        pointcaches = list()
+        for instance in context:
+            if instance.data["family"] != "pointcache":
+                continue
+
+            object_set = instance.data.get('objSetName', None)
+            if not object_set:
+                continue
+
+            pointcaches.append(object_set)
 
         if pointcaches:
             self.log.info("Found animPkg")
