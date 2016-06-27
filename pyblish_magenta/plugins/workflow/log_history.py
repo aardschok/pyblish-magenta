@@ -56,11 +56,13 @@ class LogHistory(pyblish.api.ContextPlugin):
                 output += "\n  - {key}: {value}".format(key=key, value=value)
 
         time = pyblish.api.format_filename(time)
+        time = time.replace(":", "") # remove invalid characters
         basename = os.path.basename(context.data["currentFile"])
         name, _ = os.path.splitext(basename)
         fname = "%s.%s.txt" % (time, name)
         dirname = os.path.expanduser("~/logs")
         path = os.path.join(dirname, fname)
+        path = os.path.normpath(path)
 
         if not os.path.exists(dirname):
             os.makedirs(dirname)
