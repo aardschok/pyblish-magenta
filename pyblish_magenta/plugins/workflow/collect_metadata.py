@@ -1,4 +1,5 @@
 import pyblish.api
+import copy
 
 
 class CollectMetadata(pyblish.api.ContextPlugin):
@@ -27,6 +28,7 @@ class CollectMetadata(pyblish.api.ContextPlugin):
                 metadata[key] = context.data.get(source)
 
         for instance in context:
-            instance.set_data("metadata", metadata)
+            instance_metadata = copy.deepcopy(metadata)
+            instance.set_data("metadata", instance_metadata)
 
         self.log.info("Collected {0}".format(metadata))
