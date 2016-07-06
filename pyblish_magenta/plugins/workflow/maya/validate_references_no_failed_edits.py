@@ -70,7 +70,7 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
 
         referenced_nodes = cmds.ls(instance, referencedNodes=True, long=True)
         if not referenced_nodes:
-            return
+            return list()
 
         # Get reference nodes from referenced nodes
         # (note that reference_nodes != referenced_nodes)
