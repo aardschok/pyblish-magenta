@@ -33,7 +33,8 @@ class SelectInvalidAction(pyblish.api.Action):
         invalid = list()
         for instance in instances:
             invalid_nodes = plugin.get_invalid(instance)
-            invalid.extend(invalid_nodes)
+            if invalid_nodes:
+                invalid.extend(invalid_nodes)
 
         # Ensure unique (process each node only once)
         invalid = list(set(invalid))
