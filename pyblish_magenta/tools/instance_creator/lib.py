@@ -93,6 +93,9 @@ def create(family, subset=None, use_selection=False):
         elif isinstance(value, int):
             add_type = {"attributeType": "long"}
             set_type = {"keyable": False, "channelBox": True}
+        elif isinstance(value, float):
+            add_type = {"attributeType": "double"}
+            set_type = {"keyable": False, "channelBox": True}
         else:
             raise TypeError("Unsupported type: %r" % type(value))
 
