@@ -16,6 +16,8 @@ class Window(QtGui.QDialog):
         super(Window, self).__init__(parent)
         self.setWindowTitle("Instance Creator")
 
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
         body = QtGui.QWidget()
         lists = QtGui.QWidget()
         footer = QtGui.QWidget()
@@ -85,6 +87,17 @@ class Window(QtGui.QDialog):
         list2.currentItemChanged.connect(self.on_list2changed)
 
         self.resize(350, 250)
+
+    def keyPressEvent(self, event):
+        """Custom keyPressEvent.
+
+        Override keyPressEvent to do nothing so that Maya's panels won't
+        take focus when pressing "SHIFT" whilst mouse is over viewport or
+        outliner. This way users don't accidently perform Maya commands whilst
+        trying to name an instance.
+
+        """
+        pass
 
     def refresh(self):
         for family in sorted(lib.families, key=lambda i: i["name"]):
