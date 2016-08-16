@@ -14,7 +14,8 @@ from .lib import (
 
 
 from .plugin import (
-    Extractor
+    Extractor,
+    Integrator
 )
 
 # third-party
@@ -37,6 +38,7 @@ __all__ = [
     "ValidateSceneOrder"
 
     "Extractor",
+    "Integrator",
 
     # third-party
     "humanize",
