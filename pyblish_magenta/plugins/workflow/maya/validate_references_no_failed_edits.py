@@ -54,6 +54,10 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
     applied to the node because it is missing, hence a "failed edit". This
     could unnecessarily bloat file sizes and degrade load/save speed.
 
+    To investigate reference edits you can "List edits" on a reference
+    and look for those edits that appear as failed. Usually failed edits
+    are near the bottom of the list.
+
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
@@ -67,7 +71,15 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
 
     @staticmethod
     def get_invalid(instance):
+        """Return invalid reference nodes in the instance
 
+        Terminology:
+            reference node: The node that is the actual reference containing
+                the nodes (type: reference)
+            referenced nodes: The nodes contained within the reference
+                (type: any type of nodes)
+
+        """
         referenced_nodes = cmds.ls(instance, referencedNodes=True, long=True)
         if not referenced_nodes:
             return list()
@@ -93,14 +105,7 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
         return invalid
 
     def process(self, instance):
-        """Process all the nodes in the instance
-
-        Terminology:
-            reference node: The node that is the actual reference containing
-                the nodes (type: referenceNode)
-            referenced nodes: The nodes contained within the reference
-                (type: any type of nodes)
-        """
+        """Process all the nodes in the instance"""
 
         invalid = self.get_invalid(instance)
 
