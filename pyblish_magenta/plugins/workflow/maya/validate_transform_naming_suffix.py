@@ -63,7 +63,10 @@ class ValidateTransformNamingSuffix(pyblish.api.Validator):
 
         invalid = []
         for transform in transforms:
-            shapes = cmds.listRelatives(transform, shapes=True, fullPath=True)
+            shapes = cmds.listRelatives(transform,
+                                        shapes=True,
+                                        fullPath=True,
+                                        noIntermediate=True)
 
             if not shapes:  # null/group transform
                 if not cls.is_valid_name(transform, None):
