@@ -68,14 +68,9 @@ class ValidateTransformNamingSuffix(pyblish.api.Validator):
                                         fullPath=True,
                                         noIntermediate=True)
 
-            if not shapes:  # null/group transform
-                if not cls.is_valid_name(transform, None):
-                    invalid.append(transform)
-
-            else:  # based on actual shape type of first child shape
-                shape_type = cmds.nodeType(shapes[0])
-                if not cls.is_valid_name(transform, shape_type):
-                    invalid.append(transform)
+            shape_type = shapes[0] if shapes else None
+            if not cls.is_valid_name(transform, shape_type):
+                invalid.append(transform)
 
         return invalid
 
