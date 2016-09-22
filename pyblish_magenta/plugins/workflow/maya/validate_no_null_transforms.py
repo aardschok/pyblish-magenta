@@ -27,8 +27,11 @@ def has_shape_children(node):
 class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     """Ensure no null transforms are in the scene.
 
-    We will consider transforms with only intermediate objects under it to be
-    null transform as well.
+    Warning:
+        Transforms with only intermediate shapes are also considered null
+        transforms. These transform nodes could potentially be used in your
+        construction history, so take care when automatically fixing this or
+        when deleting the empty transforms manually.
 
     """
 
