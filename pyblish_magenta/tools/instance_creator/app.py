@@ -101,19 +101,13 @@ class FamilyDescriptionWidget(QtWidgets.QWidget):
         self.help.setText(family.get("help", ""))
 
 
-class Window(QtWidgets.QDialog):
+class CreateWidget(QtWidgets.QWidget):
+    """Widget to create new instances"""
+
+    closed = QtCore.Signal()
+
     def __init__(self, parent=None):
-        super(Window, self).__init__(parent)
-
-        self.setWindowTitle("Instance Creator")
-        self.setObjectName("instanceCreator")
-
-        self.setFocusPolicy(QtCore.Qt.StrongFocus)
-
-        # Makes Maya perform magic which makes the window stay
-        # on top in OS X and Linux. As an added bonus, it'll
-        # make Maya remember the window position
-        self.setProperty("saveWindowPref", True)
+        super(CreateWidget, self).__init__(parent=parent)
 
         header = FamilyDescriptionWidget()
         body = QtWidgets.QWidget()
@@ -123,7 +117,7 @@ class Window(QtWidgets.QDialog):
         list1Container = QtWidgets.QWidget()
         list2Container = QtWidgets.QWidget()
 
-        model1 = model.Model()
+        model1 = model.FamiliesModel()
         list1 = QtWidgets.QListView()
         list1.setModel(model1)
         list1.setStyleSheet("""
@@ -172,7 +166,7 @@ class Window(QtWidgets.QDialog):
         layout.addWidget(lists)
         layout.addWidget(options, 0, QtCore.Qt.AlignLeft)
         layout.setContentsMargins(0, 0, 0, 0)
-        
+
         create_btn = QtWidgets.QPushButton("Create")
 
         layout = QtWidgets.QHBoxLayout(footer)
@@ -197,19 +191,6 @@ class Window(QtWidgets.QDialog):
         selection = list1.selectionModel()
         selection.currentChanged.connect(self.on_list1changed)
         list2.currentItemChanged.connect(self.on_list2changed)
-
-        self.resize(350, 250)
-
-    def keyPressEvent(self, event):
-        """Custom keyPressEvent.
-
-        Override keyPressEvent to do nothing so that Maya's panels won't
-        take focus when pressing "SHIFT" whilst mouse is over viewport or
-        outliner. This way users don't accidently perform Maya commands whilst
-        trying to name an instance.
-
-        """
-        pass
 
     def refresh(self):
 
@@ -251,7 +232,113 @@ class Window(QtWidgets.QDialog):
         lib.create(family, subset, use_selection)
 
         if self.autoclose_chk.checkState():
-            self.close()
+            self.closed.emit()
+
+
+class ManageWidget(QtWidgets.QWidget):
+    """Widget to manage current instances in the scene"""
+
+    def __init__(self, parent=None):
+        super(ManageWidget, self).__init__(parent=parent)
+
+        instance_model = model.InstancesModel()
+        instance_model.refresh()
+
+        view = QtWidgets.QListView()
+        view.setStyleSheet("""
+            QListView::item{
+                padding: 3px 5px;
+            }
+        """)
+        view.setModel(instance_model)
+
+        refresh = QtWidgets.QPushButton("Refresh")
+        add = QtWidgets.QPushButton("Add members")
+        remove = QtWidgets.QPushButton("Remove members")
+        delete = QtWidgets.QPushButton("Delete instance")
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(refresh)
+        layout.addWidget(view)
+        layout.addWidget(add)
+        layout.addWidget(remove)
+        layout.addWidget(delete)
+
+        self.view = view
+        self.model = instance_model
+
+        # Connect slots
+        refresh.clicked.connect(instance_model.refresh)
+        add.clicked.connect(self.on_add_selected)
+        remove.clicked.connect(self.on_remove_selected)
+        delete.clicked.connect(self.on_delete)
+
+    def get_current(self):
+        selection = self.view.selectionModel()
+        return selection.currentIndex().data(model.NodeRole)
+
+    def on_add_selected(self):
+
+        from maya import cmds
+        objset = self.get_current()['node']
+        nodes = cmds.ls(sl=True)
+        cmds.sets(nodes, forceElement=objset)
+
+    def on_remove_selected(self):
+
+        from maya import cmds
+        objset = self.get_current()['node']
+        nodes = cmds.ls(sl=True)
+        cmds.sets(nodes, remove=objset)
+
+    def on_delete(self):
+
+        from maya import cmds
+        objset = self.get_current()['node']
+        cmds.delete(objset)
+        self.model.refresh()
+
+
+class Window(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super(Window, self).__init__(parent)
+
+        self.setWindowTitle("Instance Creator")
+        self.setObjectName("instanceCreator")
+
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
+        # Makes Maya perform magic which makes the window stay
+        # on top in OS X and Linux. As an added bonus, it'll
+        # make Maya remember the window position
+        self.setProperty("saveWindowPref", True)
+
+        tabs = QtWidgets.QTabWidget()
+
+        create = CreateWidget()
+        manage = ManageWidget()
+
+        tabs.addTab(create, "Create")
+        tabs.addTab(manage, "Manage")
+
+        create.refresh()
+
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(tabs)
+
+        create.closed.connect(self.close)
+
+    def keyPressEvent(self, event):
+        """Custom keyPressEvent.
+
+        Override keyPressEvent to do nothing so that Maya's panels won't
+        take focus when pressing "SHIFT" whilst mouse is over viewport or
+        outliner. This way users don't accidently perform Maya commands whilst
+        trying to name an instance.
+
+        """
+        pass
 
 
 def show():
@@ -268,7 +355,6 @@ def show():
 
     window = Window(parent)
     window.show()
-    window.refresh()
 
     self._window = window
 
