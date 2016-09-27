@@ -14,9 +14,16 @@ self._window = None
 class Window(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
+
         self.setWindowTitle("Instance Creator")
+        self.setObjectName("instanceCreator")
 
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
+        # Makes Maya perform magic which makes the window stay
+        # on top in OS X and Linux. As an added bonus, it'll
+        # make Maya remember the window position
+        self.setProperty("saveWindowPref", True)
 
         body = QtWidgets.QWidget()
         lists = QtWidgets.QWidget()
