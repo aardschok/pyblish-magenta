@@ -81,7 +81,12 @@ def create(family, subset=None, use_selection=False):
     if not use_selection:
         cmds.select(deselect=True)
 
-    instance = cmds.sets(name="{0}_{1}_INST".format(family, subset))
+    name = "{0}_{1}_INST".format(family, subset)
+    if cmds.objExists(name):
+        raise RuntimeError("Instance for family and subset "
+                           "already exists: {0}".format(name))
+
+    instance = cmds.sets(name=name)
 
     for item in attrs:
         key = item["key"]
@@ -147,7 +152,7 @@ def ls(family=None):
             if cmds.attributeQuery(attr, node=objset, exists=True):
                 instance[attr] = cmds.getAttr(plug)
             else:
-                log.warning("Missing attribute: {0}".format(plug))
+                log.warning("Missing attribute: %s", plug)
 
         if family is not None and instance['family'] not in family:
             continue
