@@ -4,11 +4,101 @@ import contextlib
 from Qt import QtWidgets, QtCore
 
 import lib
-from model import Model
+import model
 
 
 self = sys.modules[__name__]
 self._window = None
+
+
+class FamilyDescriptionWidget(QtWidgets.QWidget):
+    """A family description widget.
+
+    Shows a family icon, family name and a help description.
+    Used in instance creator header.
+
+     _________________
+    |  ____           |
+    | |icon| FAMILY   |
+    | |____| help     |
+    |_________________|
+
+    """
+
+    SIZE = 40
+
+    def __init__(self, parent=None):
+        super(FamilyDescriptionWidget, self).__init__(parent=parent)
+
+        # Header font
+        font = QtWidgets.QFont()
+        font.setBold(True)
+        font.setPointSize(14)
+
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        icon = QtWidgets.QLabel()
+        icon.setSizePolicy(QtWidgets.QSizePolicy.Maximum,
+                           QtWidgets.QSizePolicy.Maximum)
+        icon.setFixedWidth(40)
+        icon.setFixedHeight(40)
+        icon.setStyleSheet("""
+        QLabel {
+            padding-right: 5px;
+        }
+        """)
+
+        label_layout = QtWidgets.QVBoxLayout()
+        label_layout.setSpacing(0)
+
+        family = QtWidgets.QLabel("family")
+        family.setFont(font)
+        family.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignLeft)
+
+        help = QtWidgets.QLabel("help")
+        help.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignLeft)
+
+        label_layout.addWidget(family)
+        label_layout.addWidget(help)
+
+        layout.addWidget(icon)
+        layout.addLayout(label_layout)
+
+        self.help = help
+        self.family = family
+        self.icon = icon
+
+        # Store default fallback pixmap for icon
+        icon = self.style().standardIcon(QtWidgets.QStyle.SP_FileIcon)
+        pixmap = icon.pixmap(self.SIZE, self.SIZE)
+        pixmap = pixmap.scaled(self.SIZE, self.SIZE)
+        self.fallback_pixmap = pixmap
+
+    def set_family(self, family):
+        """Update elements to display information of a family item.
+
+        Args:
+            family (dict): A family item as registered with name, help and icon
+
+        Returns:
+            None
+
+        """
+        if not family:
+            return
+
+        icon = family.get("icon", None)
+        if icon:
+            pixmap = icon.pixmap(self.SIZE, self.SIZE)
+            pixmap = pixmap.scaled(self.SIZE, self.SIZE)
+        else:
+            pixmap = self.fallback_pixmap
+
+        self.icon.setPixmap(pixmap)
+
+        self.family.setText(family.get("name", "family"))
+        self.help.setText(family.get("help", ""))
 
 
 class Window(QtWidgets.QDialog):
@@ -25,6 +115,7 @@ class Window(QtWidgets.QDialog):
         # make Maya remember the window position
         self.setProperty("saveWindowPref", True)
 
+        header = FamilyDescriptionWidget()
         body = QtWidgets.QWidget()
         lists = QtWidgets.QWidget()
         footer = QtWidgets.QWidget()
@@ -32,7 +123,7 @@ class Window(QtWidgets.QDialog):
         list1Container = QtWidgets.QWidget()
         list2Container = QtWidgets.QWidget()
 
-        model1 = Model()
+        model1 = model.Model()
         list1 = QtWidgets.QListView()
         list1.setModel(model1)
         list1.setStyleSheet("""
@@ -45,14 +136,8 @@ class Window(QtWidgets.QDialog):
 
         list2 = QtWidgets.QListWidget()
 
-        header_font = QtWidgets.QFont()
-        header_font.setBold(True)
-        header_font.setPointSize(10)
-
         list1Header = QtWidgets.QLabel("Family")
-        list1Header.setFont(header_font)
         list2Header = QtWidgets.QLabel("Subset")
-        list2Header.setFont(header_font)
         subset_fld = QtWidgets.QLineEdit()
 
         layout = QtWidgets.QVBoxLayout(list1Container)
@@ -95,9 +180,11 @@ class Window(QtWidgets.QDialog):
         layout.setContentsMargins(0, 0, 0, 0)
 
         layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(header)
         layout.addWidget(body)
         layout.addWidget(footer)
 
+        self.header = header
         self.create_btn = create_btn
         self.subset_fld = subset_fld
         self.model1 = model1
@@ -138,10 +225,13 @@ class Window(QtWidgets.QDialog):
 
         self.list2.clear()
 
-        subsets = current.data(QtCore.Qt.UserRole + 1)
+        subsets = current.data(model.SubsetRole)
         for subset in subsets:
             item = QtWidgets.QListWidgetItem(subset)
             self.list2.addItem(item)
+
+        family = current.data(model.NodeRole)
+        self.header.set_family(family)
 
         self.list2.setCurrentItem(self.list2.item(0))
 
