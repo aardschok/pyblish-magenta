@@ -1,5 +1,8 @@
 import sys
 from maya import cmds
+import logging
+
+log = logging.getLogger(__name__)
 
 self = sys.modules[__name__]
 self.defaults = []
@@ -105,3 +108,50 @@ def create(family, subset=None, use_selection=False):
     cmds.select(instance, noExpand=True)
 
     return instance
+
+
+def ls(family=None):
+    """List instances in the scene
+
+    Args:
+        family (tuple): Tuple of family strings to filter to.
+            When str is passed it will be considered as one entry in a tuple.
+
+    Returns:
+        list: Instances in the scene.
+
+    """
+
+    if isinstance(family, basestring):
+        family = (family,)
+
+    objsets = cmds.ls("*_INST", exactType="objectSet")
+
+    # Only those sets that have a .family attribute
+    objsets = [o for o in objsets if cmds.attributeQuery("family",
+                                                         node=o,
+                                                         exists=True)]
+
+    attrs = ["family", "subset", "name", "label", "publish"]
+
+    instances = list()
+    for objset in objsets:
+
+        instance = {
+            "node": objset
+        }
+
+        # collect attributes
+        for attr in attrs:
+            plug = "{0}.{1}".format(objset, attr)
+            if cmds.attributeQuery(attr, node=objset, exists=True):
+                instance[attr] = cmds.getAttr(plug)
+            else:
+                log.warning("Missing attribute: {0}".format(plug))
+
+        if family is not None and instance['family'] not in family:
+            continue
+
+        instances.append(instance)
+
+    return instances
