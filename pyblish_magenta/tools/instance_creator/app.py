@@ -1,89 +1,107 @@
 import sys
 import contextlib
 
-from PySide import QtGui, QtCore
+from Qt import QtWidgets, QtCore
 
-from pyblish_magenta.vendor import inflection
 import lib
+from model import Model
 
 
 self = sys.modules[__name__]
 self._window = None
 
 
-class Window(QtGui.QDialog):
+class Window(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.setWindowTitle("Instance Creator")
 
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-        body = QtGui.QWidget()
-        lists = QtGui.QWidget()
-        footer = QtGui.QWidget()
+        body = QtWidgets.QWidget()
+        lists = QtWidgets.QWidget()
+        footer = QtWidgets.QWidget()
 
-        list1Container = QtGui.QWidget()
-        list2Container = QtGui.QWidget()
+        list1Container = QtWidgets.QWidget()
+        list2Container = QtWidgets.QWidget()
 
-        list1 = QtGui.QListWidget()
-        list2 = QtGui.QListWidget()
+        model1 = Model()
+        list1 = QtWidgets.QListView()
+        list1.setModel(model1)
+        list1.setStyleSheet("""
+            QListView::item{
+                padding: 3px 5px;
+            }
+        """)
+        list1.setSelectionMode(list1.SingleSelection)
+        list1.setSelectionBehavior(list1.SelectRows)
 
-        list1Header = QtGui.QLabel("Family")
-        list2Header = QtGui.QLabel("Subset")
-        subset_fld = QtGui.QLineEdit()
+        list2 = QtWidgets.QListWidget()
 
-        layout = QtGui.QVBoxLayout(list1Container)
+        header_font = QtWidgets.QFont()
+        header_font.setBold(True)
+        header_font.setPointSize(10)
+
+        list1Header = QtWidgets.QLabel("Family")
+        list1Header.setFont(header_font)
+        list2Header = QtWidgets.QLabel("Subset")
+        list2Header.setFont(header_font)
+        subset_fld = QtWidgets.QLineEdit()
+
+        layout = QtWidgets.QVBoxLayout(list1Container)
         layout.addWidget(list1Header)
         layout.addWidget(list1)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout = QtGui.QVBoxLayout(list2Container)
+        layout = QtWidgets.QVBoxLayout(list2Container)
         layout.addWidget(list2Header)
         layout.addWidget(subset_fld)
         layout.addWidget(list2)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        options = QtGui.QWidget()
-        layout = QtGui.QGridLayout(options)
+        options = QtWidgets.QWidget()
+        layout = QtWidgets.QGridLayout(options)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        useselection_chk = QtGui.QCheckBox("Use selection")
+        useselection_chk = QtWidgets.QCheckBox("Use selection")
         useselection_chk.setCheckState(QtCore.Qt.Checked)
         layout.addWidget(useselection_chk, 0, 0)
 
-        autoclose_chk = QtGui.QCheckBox("Close after creation")
+        autoclose_chk = QtWidgets.QCheckBox("Close after creation")
         autoclose_chk.setCheckState(QtCore.Qt.Checked)
         layout.addWidget(autoclose_chk, 1, 0)
 
-        layout = QtGui.QHBoxLayout(lists)
+        layout = QtWidgets.QHBoxLayout(lists)
         layout.addWidget(list1Container)
         layout.addWidget(list2Container)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout = QtGui.QVBoxLayout(body)
+        layout = QtWidgets.QVBoxLayout(body)
         layout.addWidget(lists)
         layout.addWidget(options, 0, QtCore.Qt.AlignLeft)
         layout.setContentsMargins(0, 0, 0, 0)
         
-        create_btn = QtGui.QPushButton("Create")
+        create_btn = QtWidgets.QPushButton("Create")
 
-        layout = QtGui.QHBoxLayout(footer)
+        layout = QtWidgets.QHBoxLayout(footer)
         layout.addWidget(create_btn)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout = QtGui.QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(body)
         layout.addWidget(footer)
 
         self.create_btn = create_btn
         self.subset_fld = subset_fld
+        self.model1 = model1
         self.list1 = list1
         self.list2 = list2
         self.useselection_chk = useselection_chk
         self.autoclose_chk = autoclose_chk
 
         create_btn.clicked.connect(self.on_create)
-        list1.currentItemChanged.connect(self.on_list1changed)
+        selection = list1.selectionModel()
+        selection.currentChanged.connect(self.on_list1changed)
         list2.currentItemChanged.connect(self.on_list2changed)
 
         self.resize(350, 250)
@@ -100,21 +118,22 @@ class Window(QtGui.QDialog):
         pass
 
     def refresh(self):
-        for family in sorted(lib.families, key=lambda i: i["name"]):
-            item = QtGui.QListWidgetItem(family["name"])
-            item.setData(QtCore.Qt.UserRole + 1, family["subsets"])
-            item.setData(QtCore.Qt.UserRole + 2, family.get("help"))
-            self.list1.addItem(item)
 
-        self.list1.setCurrentItem(self.list1.item(0))
+        self.model1.refresh()
+
+        selection = self.list1.selectionModel()
+        selection.setCurrentIndex(self.model1.index(0),
+                                  selection.Select)
+
         self.list2.setCurrentItem(self.list2.item(0))
 
     def on_list1changed(self, current, previous):
+
         self.list2.clear()
 
         subsets = current.data(QtCore.Qt.UserRole + 1)
         for subset in subsets:
-            item = QtGui.QListWidgetItem(subset)
+            item = QtWidgets.QListWidgetItem(subset)
             self.list2.addItem(item)
 
         self.list2.setCurrentItem(self.list2.item(0))
@@ -127,7 +146,8 @@ class Window(QtGui.QDialog):
 
     def on_create(self):
 
-        family = self.list1.currentItem().text()
+        selection = self.list1.selectionModel()
+        family = selection.currentIndex().data(QtCore.Qt.DisplayRole)
         subset = self.subset_fld.text()
 
         use_selection = self.useselection_chk.checkState()
@@ -143,7 +163,7 @@ def show():
         del(self._window)
 
     try:
-        widgets = QtGui.QApplication.topLevelWidgets()
+        widgets = QtWidgets.QApplication.topLevelWidgets()
         widgets = dict((w.objectName(), w) for w in widgets)
         parent = widgets['MayaWindow']
     except KeyError:
@@ -158,11 +178,40 @@ def show():
 
 @contextlib.contextmanager
 def application():
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     yield
     app.exec_()
 
 
 if __name__ == '__main__':
-    with application():
-        show()
+
+    def main():
+        """Use case example test"""
+
+        import lib
+
+        families = [
+            {
+                "name": "model",
+                "subsets": ["default", "hires", "lowres"],
+                "help": "A model (geo + curves) without history"
+            },
+            {
+                "name": "rig",
+                "subsets": ["rigAnim", "rigSimCloth", "rigSimFur"],
+                "help": "Artist-friendly rig with controls to direct motion"
+            },
+            {
+                "name": "look",
+                "subsets": ["default", "blue", "red"],
+                "help": "Shader connections that define a look for shapes"
+            }
+        ]
+
+        for f in families:
+            lib.register_family(f)
+
+        with application():
+            show()
+
+    main()
