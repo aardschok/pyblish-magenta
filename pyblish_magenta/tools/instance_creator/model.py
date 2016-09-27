@@ -1,6 +1,8 @@
-
 from Qt import QtCore, QtWidgets
 import lib
+
+SubsetRole = QtCore.Qt.UserRole + 1
+NodeRole = QtCore.Qt.UserRole + 2
 
 
 class Model(QtCore.QAbstractListModel):
@@ -10,7 +12,8 @@ class Model(QtCore.QAbstractListModel):
         QtCore.Qt.DisplayRole: "name",
         QtCore.Qt.ToolTipRole: "help",
         QtCore.Qt.DecorationRole: "icon",
-        QtCore.Qt.UserRole + 1: "subsets"
+        SubsetRole: "subsets",
+        NodeRole: None
     }
 
     def __init__(self, parent=None):
@@ -18,6 +21,9 @@ class Model(QtCore.QAbstractListModel):
         self.items = list()
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
+
+        if role == NodeRole:
+            return self.items[index.row()]
 
         if role in self.ROLES:
             item = self.items[index.row()]
