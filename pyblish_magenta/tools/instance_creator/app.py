@@ -148,6 +148,7 @@ class CreateWidget(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
 
         useselection_chk = QtWidgets.QCheckBox("Use selection")
+        useselection_chk.setToolTip("Add selected nodes to created instance")
         useselection_chk.setCheckState(QtCore.Qt.Checked)
         layout.addWidget(useselection_chk, 0, 0)
 
@@ -244,14 +245,24 @@ class ManageWidget(QtWidgets.QWidget):
         view.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         refresh = QtWidgets.QPushButton("Refresh")
+        refresh.setToolTip("Update the list of instances")
+        refresh.setSizePolicy(QtWidgets.QSizePolicy.Maximum,
+                              QtWidgets.QSizePolicy.Maximum)
+
         add = QtWidgets.QPushButton("Add members")
+        add.setToolTip("Add selected nodes as members to current instance")
         remove = QtWidgets.QPushButton("Remove members")
+        remove.setToolTip("Remove selected nodes as members "
+                          "from current instance")
+
+        add_remove_layout = QtWidgets.QHBoxLayout()
+        add_remove_layout.addWidget(add)
+        add_remove_layout.addWidget(remove)
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(refresh)
         layout.addWidget(view)
-        layout.addWidget(add)
-        layout.addWidget(remove)
+        layout.addLayout(add_remove_layout)
 
         self.view = view
         self.model = instance_model
@@ -262,6 +273,9 @@ class ManageWidget(QtWidgets.QWidget):
         remove.clicked.connect(self.on_remove_selected)
         view.doubleClicked.connect(self.on_double_click)
         view.customContextMenuRequested.connect(self.on_context_menu)
+
+    def refresh(self):
+        self.model.refresh()
 
     def get_current(self):
         selection = self.view.selectionModel()
@@ -370,13 +384,22 @@ class Window(QtWidgets.QDialog):
         manage = ManageWidget()
 
         tabs.addTab(create, "Create")
+        tabs.setTabToolTip(0, "Create new instances")
         tabs.addTab(manage, "Manage")
+        tabs.setTabToolTip(1, "Manage instances currently in scene")
 
         create.refresh()
 
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(tabs)
+
+        self.tabs = tabs
+
+        tabs.currentChanged.connect(self.on_tab_change)
+
+    def on_tab_change(self, index):
+        self.tabs.widget(index).refresh()
 
     def keyPressEvent(self, event):
         """Custom keyPressEvent.
