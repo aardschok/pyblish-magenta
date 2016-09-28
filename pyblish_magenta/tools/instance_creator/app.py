@@ -251,6 +251,7 @@ class ManageWidget(QtWidgets.QWidget):
             }
         """)
         view.setModel(instance_model)
+        view.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
 
         refresh = QtWidgets.QPushButton("Refresh")
         add = QtWidgets.QPushButton("Add members")
@@ -273,6 +274,7 @@ class ManageWidget(QtWidgets.QWidget):
         remove.clicked.connect(self.on_remove_selected)
         delete.clicked.connect(self.on_delete)
         view.doubleClicked.connect(self.on_double_click)
+        view.customContextMenuRequested.connect(self.on_context_menu)
 
     def get_current(self):
         selection = self.view.selectionModel()
@@ -311,6 +313,50 @@ class ManageWidget(QtWidgets.QWidget):
 
         item = index.data(model.NodeRole)
         cmds.select(item['node'], replace=True, noExpand=True)
+
+    def on_context_menu(self, pos):
+
+        from maya import cmds
+
+        global_pos = self.view.mapToGlobal(pos)
+
+        selection = self.view.selectionModel()
+        current = selection.currentIndex()
+
+        if not current.isValid():
+            return
+
+        item = current.data(model.NodeRole)
+
+        menu = QtWidgets.QMenu()
+
+        def on_select_instance():
+            item = self.get_current()
+            if not item:
+                return
+
+            node = item['node']
+            cmds.select(node, replace=True, noExpand=True)
+
+        def on_select_members():
+            item = self.get_current()
+            if not item:
+                return
+
+            node = item['node']
+            members = cmds.sets(node, query=True)
+            cmds.select(members, replace=True, noExpand=True)
+
+        select_instance = QtWidgets.QAction("Select Instance", self)
+        select_instance.triggered.connect(on_select_instance)
+        select_members = QtWidgets.QAction("Select Members", self)
+        select_members.triggered.connect(on_select_members)
+
+        menu.addAction(select_instance)
+        menu.addAction(select_members)
+
+        action = menu.exec_(global_pos)
+        return action
 
 
 class Window(QtWidgets.QDialog):
