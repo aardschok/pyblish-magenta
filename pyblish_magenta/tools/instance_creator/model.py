@@ -68,6 +68,9 @@ class InstancesModel(QtCore.QAbstractListModel):
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
 
+        if not index.isValid():
+            return
+
         item = self.items[index.row()]
 
         if role == QtCore.Qt.DisplayRole:
@@ -107,3 +110,4 @@ class InstancesModel(QtCore.QAbstractListModel):
             inst['icon'] = icon
 
             self.append(inst)
+        self.reset()
