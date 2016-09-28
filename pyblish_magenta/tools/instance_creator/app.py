@@ -272,12 +272,14 @@ class ManageWidget(QtWidgets.QWidget):
         add.clicked.connect(self.on_add_selected)
         remove.clicked.connect(self.on_remove_selected)
         delete.clicked.connect(self.on_delete)
+        view.doubleClicked.connect(self.on_double_click)
 
     def get_current(self):
         selection = self.view.selectionModel()
         return selection.currentIndex().data(model.NodeRole)
 
     def on_add_selected(self):
+        """Add selection to members in the current instance"""
 
         from maya import cmds
         objset = self.get_current()['node']
@@ -285,6 +287,7 @@ class ManageWidget(QtWidgets.QWidget):
         cmds.sets(nodes, forceElement=objset)
 
     def on_remove_selected(self):
+        """Remove selection from members in the current instance"""
 
         from maya import cmds
         objset = self.get_current()['node']
@@ -292,11 +295,22 @@ class ManageWidget(QtWidgets.QWidget):
         cmds.sets(nodes, remove=objset)
 
     def on_delete(self):
+        """Delete the current instance"""
 
         from maya import cmds
         objset = self.get_current()['node']
         cmds.delete(objset)
         self.model.refresh()
+
+    def on_double_click(self, index):
+        """Select the instance on double click"""
+
+        from maya import cmds
+        if not index.isValid():
+            return
+
+        item = index.data(model.NodeRole)
+        cmds.select(item['node'], replace=True, noExpand=True)
 
 
 class Window(QtWidgets.QDialog):
