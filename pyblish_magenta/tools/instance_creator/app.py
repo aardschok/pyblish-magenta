@@ -256,14 +256,12 @@ class ManageWidget(QtWidgets.QWidget):
         refresh = QtWidgets.QPushButton("Refresh")
         add = QtWidgets.QPushButton("Add members")
         remove = QtWidgets.QPushButton("Remove members")
-        delete = QtWidgets.QPushButton("Delete instance")
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(refresh)
         layout.addWidget(view)
         layout.addWidget(add)
         layout.addWidget(remove)
-        layout.addWidget(delete)
 
         self.view = view
         self.model = instance_model
@@ -272,7 +270,6 @@ class ManageWidget(QtWidgets.QWidget):
         refresh.clicked.connect(instance_model.refresh)
         add.clicked.connect(self.on_add_selected)
         remove.clicked.connect(self.on_remove_selected)
-        delete.clicked.connect(self.on_delete)
         view.doubleClicked.connect(self.on_double_click)
         view.customContextMenuRequested.connect(self.on_context_menu)
 
@@ -295,14 +292,6 @@ class ManageWidget(QtWidgets.QWidget):
         objset = self.get_current()['node']
         nodes = cmds.ls(sl=True)
         cmds.sets(nodes, remove=objset)
-
-    def on_delete(self):
-        """Delete the current instance"""
-
-        from maya import cmds
-        objset = self.get_current()['node']
-        cmds.delete(objset)
-        self.model.refresh()
 
     def on_double_click(self, index):
         """Select the instance on double click"""
@@ -347,13 +336,25 @@ class ManageWidget(QtWidgets.QWidget):
             members = cmds.sets(node, query=True)
             cmds.select(members, replace=True, noExpand=True)
 
+        def on_delete():
+            """Delete the current instance"""
+
+            from maya import cmds
+            objset = self.get_current()['node']
+            cmds.delete(objset)
+            self.model.refresh()
+
         select_instance = QtWidgets.QAction("Select Instance", self)
         select_instance.triggered.connect(on_select_instance)
         select_members = QtWidgets.QAction("Select Members", self)
         select_members.triggered.connect(on_select_members)
+        delete = QtWidgets.QAction("Delete Instance", self)
+        delete.triggered.connect(on_delete)
 
         menu.addAction(select_instance)
         menu.addAction(select_members)
+        menu.addSeparator()
+        menu.addAction(delete)
 
         action = menu.exec_(global_pos)
         return action
