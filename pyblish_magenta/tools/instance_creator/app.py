@@ -104,8 +104,6 @@ class FamilyDescriptionWidget(QtWidgets.QWidget):
 class CreateWidget(QtWidgets.QWidget):
     """Widget to create new instances"""
 
-    closed = QtCore.Signal()
-
     def __init__(self, parent=None):
         super(CreateWidget, self).__init__(parent=parent)
 
@@ -153,10 +151,6 @@ class CreateWidget(QtWidgets.QWidget):
         useselection_chk.setCheckState(QtCore.Qt.Checked)
         layout.addWidget(useselection_chk, 0, 0)
 
-        autoclose_chk = QtWidgets.QCheckBox("Close after creation")
-        autoclose_chk.setCheckState(QtCore.Qt.Checked)
-        layout.addWidget(autoclose_chk, 1, 0)
-
         layout = QtWidgets.QHBoxLayout(lists)
         layout.addWidget(list1Container)
         layout.addWidget(list2Container)
@@ -185,7 +179,6 @@ class CreateWidget(QtWidgets.QWidget):
         self.list1 = list1
         self.list2 = list2
         self.useselection_chk = useselection_chk
-        self.autoclose_chk = autoclose_chk
 
         create_btn.clicked.connect(self.on_create)
         selection = list1.selectionModel()
@@ -230,9 +223,6 @@ class CreateWidget(QtWidgets.QWidget):
 
         use_selection = self.useselection_chk.checkState()
         lib.create(family, subset, use_selection)
-
-        if self.autoclose_chk.checkState():
-            self.closed.emit()
 
 
 class ManageWidget(QtWidgets.QWidget):
@@ -387,8 +377,6 @@ class Window(QtWidgets.QDialog):
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(tabs)
-
-        create.closed.connect(self.close)
 
     def keyPressEvent(self, event):
         """Custom keyPressEvent.
