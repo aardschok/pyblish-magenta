@@ -63,10 +63,13 @@ def is_visible(node,
 
 
 class ValidateJointsHidden(pyblish.api.InstancePlugin):
-    """Validate all joints are hidden.
+    """Validate all joints are hidden visually.
 
-    .. note::
-        We don't count a disabled displayLayer for the joints as hidden joints.
+    This includes being hidden:
+        - visibility off,
+        - in a display layer that has visibility off,
+        - having hidden parents or
+        - being an intermediate object.
 
     """
 
@@ -83,7 +86,7 @@ class ValidateJointsHidden(pyblish.api.InstancePlugin):
 
         invalid = []
         for joint in joints:
-            if is_visible(joint, displayLayer=False):
+            if is_visible(joint, displayLayer=True):
                 invalid.append(joint)
 
         if invalid:
