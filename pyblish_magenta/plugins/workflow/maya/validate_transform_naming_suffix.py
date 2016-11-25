@@ -68,7 +68,7 @@ class ValidateTransformNamingSuffix(pyblish.api.Validator):
                                         fullPath=True,
                                         noIntermediate=True)
 
-            shape_type = shapes[0] if shapes else None
+            shape_type = cmds.nodeType(shapes[0]) if shapes else None
             if not cls.is_valid_name(transform, shape_type):
                 invalid.append(transform)
 
