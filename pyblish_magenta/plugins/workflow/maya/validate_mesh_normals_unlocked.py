@@ -20,6 +20,7 @@ class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
     version = (0, 1, 0)
     label = 'Mesh Normals Unlocked'
     actions = [SelectInvalidAction]
+    optional = True
 
     @staticmethod
     def has_locked_normals(mesh):
