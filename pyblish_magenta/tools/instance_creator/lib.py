@@ -61,7 +61,7 @@ def register_family(item):
     self.families.append(item)
 
 
-def create(family, subset=None, use_selection=False):
+def create(family, subset, use_selection=False):
     """Create new instance
 
     Arguments:
@@ -76,21 +76,17 @@ def create(family, subset=None, use_selection=False):
     except:
         raise RuntimeError("{0} is not a valid family".format(family))
 
-    attrs = self.defaults + item.get("attributes", [])
-
-    if not use_selection:
-        cmds.select(deselect=True)
-
     name = "{0}_{1}_INST".format(family, subset)
     if cmds.objExists(name):
         raise RuntimeError("Instance for family and subset "
                            "already exists: {0}".format(name))
 
-    instance = cmds.sets(name=name)
+    instance = cmds.sets(name=name, empty=not use_selection)
 
-    for item in attrs:
-        key = item["key"]
-        value = item["value"](family, subset)
+    attrs = self.defaults + item.get("attributes", [])
+    for attr in attrs:
+        key = attr["key"]
+        value = attr["value"](family, subset)
 
         if isinstance(value, bool):
             add_type = {"attributeType": "bool"}
@@ -105,10 +101,15 @@ def create(family, subset=None, use_selection=False):
             add_type = {"attributeType": "double"}
             set_type = {"keyable": False, "channelBox": True}
         else:
-            raise TypeError("Unsupported type: %r" % type(value))
+            raise TypeError("Unsupported type: %r (key: %s)" % (type(value), key))
 
         cmds.addAttr(instance, ln=key, **add_type)
         cmds.setAttr(instance + "." + key, value, **set_type)
+
+    # Post creation callback
+    callback = item.get("callback", None)
+    if callback:
+        callback(instance)
 
     cmds.select(instance, noExpand=True)
 
