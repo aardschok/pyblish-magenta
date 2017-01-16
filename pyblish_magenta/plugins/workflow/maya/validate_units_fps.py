@@ -8,6 +8,7 @@ class ValidateUnitsFps(pyblish.api.ContextPlugin):
     order = pyblish_magenta.api.ValidateSceneOrder
     label = "Units (fps)"
     families = ["rig", "model", "pointcache", "curves"]
+    optional = True
 
     def process(self, context):
         fps = context.data('fps')
