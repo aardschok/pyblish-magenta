@@ -5,7 +5,12 @@ from pyblish_magenta.action import SelectInvalidAction
 
 
 class ValidateMeshNonManifold(pyblish.api.Validator):
-    """Ensure that meshes don't have non-manifold edges or vertices"""
+    """Ensure that meshes don't have non-manifold edges or vertices
+
+    To debug the problem on the meshes you can use Maya's modeling
+    tool: "Mesh > Cleanup..."
+
+    """
 
     order = pyblish_magenta.api.ValidateMeshOrder
     families = ['model']
