@@ -60,6 +60,10 @@ class CollectInstances(pyblish.api.ContextPlugin):
                               "of family {1}".format(objset, family))
                 continue
 
+            # ignore referenced sets
+            if cmds.referenceQuery(objset, isNodeReferenced=True):
+                continue
+
             instance = context.create_instance(objset)
             short_name = objset.rsplit("|", 1)[-1].rsplit(":", 1)[-1]
             for key, default in {
