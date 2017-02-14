@@ -97,6 +97,7 @@ class InstancesModel(QtCore.QAbstractListModel):
 
     def refresh(self):
 
+        self.beginResetModel()
         self.items[:] = list()
         for inst in sorted(lib.ls(), key=lambda i: i["name"]):
 
@@ -110,4 +111,4 @@ class InstancesModel(QtCore.QAbstractListModel):
             inst['icon'] = icon
 
             self.append(inst)
-        self.reset()
+        self.endResetModel()

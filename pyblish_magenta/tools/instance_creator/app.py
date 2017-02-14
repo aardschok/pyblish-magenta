@@ -1,7 +1,7 @@
 import sys
 import contextlib
 
-from Qt import QtWidgets, QtCore
+from Qt import QtWidgets, QtGui, QtCore
 
 import lib
 import model
@@ -31,7 +31,7 @@ class FamilyDescriptionWidget(QtWidgets.QWidget):
         super(FamilyDescriptionWidget, self).__init__(parent=parent)
 
         # Header font
-        font = QtWidgets.QFont()
+        font = QtGui.QFont()
         font.setBold(True)
         font.setPointSize(14)
 
@@ -320,7 +320,6 @@ class ManageWidget(QtWidgets.QWidget):
             return
 
         item = current.data(model.NodeRole)
-
         menu = QtWidgets.QMenu()
 
         def on_select_instance():
