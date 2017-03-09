@@ -134,7 +134,13 @@ class ValidateMeshSingleUVSet(pyblish.api.InstancePlugin):
 
         invalid = []
         for mesh in meshes:
-            uvSets = cmds.polyUVSet(mesh, query=True, allUVSets=True)
+            uvSets = cmds.polyUVSet(mesh, 
+                                    query=True, 
+                                    allUVSets=True) or []
+
+            # ensure unique (sometimes maya will list 'map1' twice)
+            uvSets = set(uvSets)    
+
             if len(uvSets) != 1:
                 invalid.append(mesh)
 
