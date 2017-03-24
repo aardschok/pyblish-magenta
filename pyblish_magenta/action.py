@@ -34,7 +34,11 @@ class SelectInvalidAction(pyblish.api.Action):
         for instance in instances:
             invalid_nodes = plugin.get_invalid(instance)
             if invalid_nodes:
-                invalid.extend(invalid_nodes)
+                if isinstance(invalid_nodes, (list, tuple)):
+                    invalid.extend(invalid_nodes)
+                else:
+                    self.log.warning("Plug-in returned to be invalid, "
+                                     "but has no selectable nodes.")
 
         # Ensure unique (process each node only once)
         invalid = list(set(invalid))
