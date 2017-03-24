@@ -34,13 +34,17 @@ class ValidateModelContent(pyblish.api.InstancePlugin):
 
         # Top group
         assemblies = cmds.ls(instance, assemblies=True, long=True)
+        print assemblies
 
         if len(assemblies) != 1:
             cls.log.error("Must have exactly one top group")
-            return assemblies
+            if len(assemblies) == 0:
+                cls.log.warning("No top group found. (Are there objects in the instance?)")
+            return assemblies or True
 
-        #if assemblies[0] != "|geo_GRP":
-        #    raise RuntimeError("Top group must be named 'geo_GRP'")
+        if not valid:
+            cls.log.error("No valid nodes in the instance")
+            return True
 
         return []
 
