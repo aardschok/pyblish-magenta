@@ -24,7 +24,12 @@ class ValidateNoAnimation(pyblish.api.Validator):
     def get_invalid(instance):
         from maya import cmds
 
-        curves = cmds.keyframe(instance, q=1, name=True)
+        nodes = instance[:]
+
+        if not nodes:
+            return []
+
+        curves = cmds.keyframe(nodes, q=1, name=True)
         if curves:
             return list(set(cmds.listConnections(curves)))
 
