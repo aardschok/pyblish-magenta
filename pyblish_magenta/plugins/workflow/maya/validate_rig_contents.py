@@ -29,6 +29,13 @@ class ValidateRigContents(pyblish.api.InstancePlugin):
         assert not missing, ("%s is missing %s"
                              % (instance, missing))
 
+        # Ensure there are at least some transforms or dag nodes
+        # in the rig instance
+        set_members = cmds.sets(instance.data['objSetName'], query=True) or []
+        if not cmds.ls(set_members, type="dagNode", long=True):
+            raise RuntimeError("No dag nodes in the pointcache instance. "
+                               "(Empty instance?)")
+
         self.log.info("Evaluating contents of object sets..")
         not_meshes = list()
         members = cmds.sets("pointcache_SET", query=True) or []
