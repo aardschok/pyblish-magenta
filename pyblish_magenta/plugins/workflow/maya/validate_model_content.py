@@ -46,7 +46,24 @@ class ValidateModelContent(pyblish.api.InstancePlugin):
             cls.log.error("No valid nodes in the instance")
             return True
 
-        return []
+        def is_visible(node):
+            """Return whether node is visible"""
+            return cmds.getAttr(node + ".visibility")
+
+        # The roots must be visible (the assemblies)
+        for assembly in assemblies:
+            if not is_visible(assembly):
+                cls.log.error("Invisible assembly (root node) is not "
+                              "allowed: {0}".format(assembly))
+                invalid.add(assembly)
+
+        # Ensure at least one shape is visible
+        shapes = cmds.ls(valid, long=True, shapes=True)
+        if not any(is_visible(shape) for shape in shapes):
+            cls.log.error("No visible shapes in the model instance")
+            invalid.update(shapes)
+
+        return list(invalid)
 
     def process(self, instance):
 
