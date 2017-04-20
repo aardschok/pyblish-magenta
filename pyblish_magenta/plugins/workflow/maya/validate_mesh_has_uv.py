@@ -1,8 +1,38 @@
+import re
 from maya import cmds
 import pyblish.api
 import pyblish_magenta.api
 
 from pyblish_magenta.action import SelectInvalidAction
+
+
+def len_flattened(components):
+    """Return the length of the list as if it was flattened.
+
+    Maya will return consecutive components as a single entry
+    when requesting with `maya.cmds.ls` without the `flatten`
+    flag. Though enabling `flatten` on a large list (e.g. millions)
+    will result in a slow result. This command will return the amount
+    of entries in a non-flattened list by parsing the resulting
+    with regex.
+
+    Args:
+        components (list): The non-flattened components.
+
+    Returns:
+        int: The amount of entries.
+
+    """
+    assert isinstance(components, (list, tuple))
+    n = 0
+    for c in components:
+        match = re.search("\[([0-9]+):([0-9]+)\]", c)
+        if match:
+            start, end = match.groups()
+            n += int(end) - int(start) + 1
+        else:
+            n += 1
+    return n
 
 
 class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
@@ -21,8 +51,8 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     label = 'Mesh Has UVs'
     actions = [SelectInvalidAction]
 
-    @staticmethod
-    def get_invalid(instance):
+    @classmethod
+    def get_invalid(cls, instance):
         invalid = []
 
         for node in cmds.ls(instance, type='mesh'):
@@ -32,12 +62,25 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
                 invalid.append(node)
                 continue
 
-            # Must have at least amount of UVs as amount of vertices which
-            # provides the assumption that at least every vertex is in the UVs
             vertex = cmds.polyEvaluate(node, vertex=True)
             if uv < vertex:
-                invalid.append(node)
-                continue
+
+                # Workaround:
+                # Maya can have instanced UVs in a single mesh, for example
+                # imported from an Alembic. With instanced UVs the UV count from
+                # `maya.cmds.polyEvaluate(uv=True)` will only result in the unique
+                # UV count instead of for all vertices.
+                #
+                # Note: Maya can save instanced UVs to `mayaAscii` but cannot
+                #       load this as instanced. So saving, opening and saving
+                #       again will lose this information.
+                uv_to_vertex = cmds.polyListComponentConversion(node + ".map[*]",
+                                                                toVertex=True)
+                uv_vertex_count = len_flattened(uv_to_vertex)
+                if uv_vertex_count < vertex:
+                    invalid.append(node)
+                else:
+                    cls.log.warning("Node has instanced UV points: {0}".format(node))
 
         return invalid
 
