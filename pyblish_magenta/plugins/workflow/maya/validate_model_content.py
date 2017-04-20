@@ -2,6 +2,66 @@ import pyblish.api
 import pyblish_magenta.api
 
 from pyblish_magenta.action import SelectInvalidAction
+from maya import cmds
+
+
+def is_visible(node,
+               displayLayer=True,
+               intermediateObject=True,
+               parentHidden=True,
+               visibility=True):
+    """Is `node` visible?
+
+    Returns whether a node is hidden by one of the following methods:
+    - The node exists (always checked)
+    - The node must be a dagNode (always checked)
+    - The node's visibility is off.
+    - The node is set as intermediate Object.
+    - The node is in a disabled displayLayer.
+    - Whether any of its parent nodes is hidden.
+
+    Roughly based on: http://ewertb.soundlinker.com/mel/mel.098.php
+
+    Returns:
+        bool: Whether the node is visible in the scene
+
+    """
+
+    # Only existing objects can be visible
+    if not cmds.objExists(node):
+        return False
+
+    # Only dagNodes can be visible
+    if not cmds.objectType(node, isAType='dagNode'):
+        return False
+
+    if visibility:
+        if not cmds.getAttr('{0}.visibility'.format(node)):
+            return False
+
+    if intermediateObject and cmds.objectType(node, isAType='shape'):
+        if cmds.getAttr('{0}.intermediateObject'.format(node)):
+            return False
+
+    if displayLayer:
+        # Display layers set overrideEnabled and overrideVisibility on members
+        if cmds.attributeQuery('overrideEnabled', node=node, exists=True):
+            if cmds.getAttr('{0}.overrideEnabled'.format(node)) and \
+               cmds.getAttr('{0}.overrideVisibility'.format(node)):
+                return False
+
+    if parentHidden:
+        parents = cmds.listRelatives(node, parent=True, fullPath=True)
+        if parents:
+            parent = parents[0]
+            if not is_visible(parent,
+                              displayLayer=displayLayer,
+                              intermediateObject=False,
+                              parentHidden=parentHidden,
+                              visibility=visibility):
+                return False
+
+    return True
 
 
 class ValidateModelContent(pyblish.api.InstancePlugin):
@@ -46,20 +106,24 @@ class ValidateModelContent(pyblish.api.InstancePlugin):
             cls.log.error("No valid nodes in the instance")
             return True
 
-        def is_visible(node):
+        def _is_visible(node):
             """Return whether node is visible"""
-            return cmds.getAttr(node + ".visibility")
+            return is_visible(node,
+                              displayLayer=False,
+                              intermediateObject=True,
+                              parentHidden=True,
+                              visibility=True)
 
         # The roots must be visible (the assemblies)
         for assembly in assemblies:
-            if not is_visible(assembly):
+            if not _is_visible(assembly):
                 cls.log.error("Invisible assembly (root node) is not "
                               "allowed: {0}".format(assembly))
                 invalid.add(assembly)
 
         # Ensure at least one shape is visible
         shapes = cmds.ls(valid, long=True, shapes=True)
-        if not any(is_visible(shape) for shape in shapes):
+        if not any(_is_visible(shape) for shape in shapes):
             cls.log.error("No visible shapes in the model instance")
             invalid.update(shapes)
 
