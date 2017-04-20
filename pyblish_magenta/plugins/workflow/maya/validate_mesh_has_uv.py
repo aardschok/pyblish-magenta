@@ -13,8 +13,8 @@ def len_flattened(components):
     when requesting with `maya.cmds.ls` without the `flatten`
     flag. Though enabling `flatten` on a large list (e.g. millions)
     will result in a slow result. This command will return the amount
-    of entries in a non-flattened list by parsing the resulting
-    with regex.
+    of entries in a non-flattened list by parsing the result with 
+    regex.
 
     Args:
         components (list): The non-flattened components.
