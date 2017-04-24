@@ -94,7 +94,6 @@ class ValidateModelContent(pyblish.api.InstancePlugin):
 
         # Top group
         assemblies = cmds.ls(instance, assemblies=True, long=True)
-        print assemblies
 
         if len(assemblies) != 1:
             cls.log.error("Must have exactly one top group")
