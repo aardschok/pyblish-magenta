@@ -1,6 +1,9 @@
 import pyblish.api
 import pyblish_magenta.api
-from pyblish_magenta.action import SelectInvalidAction
+from pyblish_magenta.action import (
+    SelectInvalidAction,
+    RepairAction
+)
 from maya import cmds
 
 
@@ -14,7 +17,7 @@ class ValidateShapeRenderStats(pyblish.api.Validator):
     optional = False
     version = (0, 1, 0)
     label = 'Shape Default Render Stats'
-    actions = [SelectInvalidAction]
+    actions = [SelectInvalidAction, RepairAction]
 
     defaults = {'castsShadows': 1,
                 'receiveShadows': 1,
@@ -51,3 +54,15 @@ class ValidateShapeRenderStats(pyblish.api.Validator):
         if invalid:
             raise ValueError("Shapes with non-standard renderStats "
                              "found: {0}".format(invalid))
+
+    @staticmethod
+    def repair(instance):
+
+        for shape in ValidateShapeRenderStats.get_invalid(instance):
+            for attr, default_value in ValidateShapeRenderStats.defaults.iteritems():
+
+                if cmds.attributeQuery(attr, node=shape, exists=True):
+                    plug = '{0}.{1}'.format(shape, attr)
+                    value = cmds.getAttr(plug)
+                    if value != default_value:
+                        cmds.setAttr(plug, default_value)
