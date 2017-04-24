@@ -1,5 +1,6 @@
 import pyblish.api
 import pyblish_magenta.api
+from pyblish_magenta.action import SelectInvalidAction
 from maya import cmds
 
 
@@ -16,14 +17,14 @@ class ValidateNoDefaultCameras(pyblish.api.InstancePlugin):
     hosts = ['maya']
     version = (0, 1, 0)
     label = "No Default Cameras"
+    actions = [SelectInvalidAction]
+
+    @staticmethod
+    def get_invalid(instance):
+        cameras = cmds.ls(instance, type='camera', long=True)
+        return [cam for cam in cameras if cmds.camera(cam, query=True, startupCamera=True)]
 
     def process(self, instance):
         """Process all the cameras in the instance"""
-        cameras = cmds.ls(instance, type='camera', long=True)
-
-        invalid = []
-        for cam in cameras:
-            if cmds.camera(cam, query=True, startupCamera=True):
-                invalid.append(cam)
-
+        invalid = self.get_invalid(instance)
         assert not invalid, "Default cameras found: {0}".format(invalid)

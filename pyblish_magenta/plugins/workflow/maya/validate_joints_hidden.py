@@ -1,5 +1,6 @@
 import pyblish.api
 import pyblish_magenta.api
+from pyblish_magenta.action import SelectInvalidAction
 from maya import cmds
 
 
@@ -79,16 +80,17 @@ class ValidateJointsHidden(pyblish.api.InstancePlugin):
     category = 'rig'
     version = (0, 1, 0)
     label = "Joints Hidden"
+    actions = [SelectInvalidAction]
+
+    @staticmethod
+    def get_invalid(instance):
+        joints = cmds.ls(instance, type='joint', long=True)
+        return [joint for joint in joints if is_visible(joint, displayLayer=True)]
 
     def process(self, instance):
         """Process all the nodes in the instance 'objectSet'"""
-        joints = cmds.ls(instance, type='joint', long=True)
-
-        invalid = []
-        for joint in joints:
-            if is_visible(joint, displayLayer=True):
-                invalid.append(joint)
+        invalid = self.get_invalid(instance)
 
         if invalid:
-            raise ValueError("Visible joints are not allowed: "
+            raise ValueError("Visible joints found: "
                              "{0}".format(invalid))

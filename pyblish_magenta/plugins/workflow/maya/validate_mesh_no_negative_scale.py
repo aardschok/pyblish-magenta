@@ -1,12 +1,13 @@
 import pyblish.api
 import pyblish_magenta.api
+from pyblish_magenta.action import SelectInvalidAction
 from maya import cmds
 
 
 class ValidateMeshNoNegativeScale(pyblish.api.Validator):
     """Ensure that meshes don't have a negative scale.
 
-    Using the negatively scaled proxies in a VRayMesh results in inverted
+    Using negatively scaled proxies in a VRayMesh results in inverted
     normals. As such we want to avoid this.
 
     We also avoid this on the rig or model because these are often the
@@ -19,9 +20,10 @@ class ValidateMeshNoNegativeScale(pyblish.api.Validator):
     families = ['proxy', 'rig', 'model']
     hosts = ['maya']
     label = 'Mesh No Negative Scale'
+    actions = [SelectInvalidAction]
 
-    def process(self, instance):
-        """Process all the nodes in the instance 'objectSet'"""
+    @staticmethod
+    def get_invalid(instance):
         meshes = cmds.ls(instance,
                          type='mesh',
                          long=True,
@@ -34,6 +36,13 @@ class ValidateMeshNoNegativeScale(pyblish.api.Validator):
 
             if any(x < 0 for x in scale):
                 invalid.append(mesh)
+
+        return invalid
+
+    def process(self, instance):
+        """Process all the nodes in the instance 'objectSet'"""
+
+        invalid = self.get_invalid(instance)
 
         if invalid:
             raise ValueError("Meshes found with negative "
