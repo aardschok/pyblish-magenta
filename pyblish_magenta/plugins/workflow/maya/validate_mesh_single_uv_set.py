@@ -1,15 +1,60 @@
 import pyblish.api
 import pyblish_magenta.api
 
-from pyblish_magenta.action import SelectInvalidAction
+from pyblish_magenta.action import (
+    SelectInvalidAction,
+    RepairAction
+)
 
 
-class RepairKeepOnlyCurrentUVs(pyblish.api.Action):
-    label = "Remove non-current UV sets"
-    on = "failed"  # This action is only available on a failed plug-in
-    icon = "wrench"  # Icon from Awesome Icon
+class ValidateMeshSingleUVSet(pyblish.api.InstancePlugin):
+    """Ensure no multiple UV sets exist for each polygon mesh"""
 
-    def repair(self, mesh):
+    order = pyblish_magenta.api.ValidateMeshOrder
+    families = ['model', 'pointcache']
+    hosts = ['maya']
+    category = 'uv'
+    optional = True
+    version = (0, 1, 0)
+    label = "Mesh Single UV Set"
+    actions = [SelectInvalidAction, RepairAction]
+
+    @staticmethod
+    def get_invalid(instance):
+        from maya import cmds
+
+        meshes = cmds.ls(instance, type='mesh', long=True)
+
+        invalid = []
+        for mesh in meshes:
+            uvSets = cmds.polyUVSet(mesh, 
+                                    query=True, 
+                                    allUVSets=True) or []
+
+            # ensure unique (sometimes maya will list 'map1' twice)
+            uvSets = set(uvSets)    
+
+            if len(uvSets) != 1:
+                invalid.append(mesh)
+
+        return invalid
+
+    def process(self, instance):
+        """Process all the nodes in the instance 'objectSet'"""
+
+        invalid = self.get_invalid(instance)
+
+        if invalid:
+            raise ValueError("Nodes found with multiple "
+                             "UV sets: {0}".format(invalid))
+
+    @classmethod
+    def repair(cls, instance):
+        for mesh in cls.get_invalid(instance):
+            cls._repair_mesh(mesh)
+
+    @staticmethod
+    def _repair_mesh(mesh):
         """Process a single mesh, deleting other UV sets than the active one.
 
         Keep only current UV set and ensure it's the default 'map1'
@@ -80,77 +125,3 @@ class RepairKeepOnlyCurrentUVs(pyblish.api.Action):
             for i in it:
                 attr = '{0}.uvSet[{1}]'.format(mesh, i)
                 cmds.removeMultiInstance(attr, b=True)
-
-    def process(self, context, plugin):
-
-        # Get the errored instances
-        self.log.info("Finding failed instances..")
-        errored_instances = []
-        for result in context.data["results"]:
-            if result["error"] is not None and result["instance"] is not None:
-                if result["error"]:
-                    instance = result["instance"]
-                    errored_instances.append(instance)
-
-        # Apply pyblish.logic to get the instances for the plug-in
-        instances = pyblish.api.instances_by_plugin(errored_instances, plugin)
-
-        # Get the invalid nodes for the plug-ins
-        self.log.info("Finding invalid nodes..")
-        invalid = list()
-        for instance in instances:
-            invalid_nodes = plugin.get_invalid(instance)
-            invalid.extend(invalid_nodes)
-
-        # Ensure unique (process each node only once)
-        invalid = list(set(invalid))
-
-        if not invalid:
-            self.log.info("No invalid nodes found.")
-            return
-
-        self.log.info("Repairing meshes: {0}".format(invalid))
-        for mesh in invalid:
-            self.repair(mesh)
-
-
-class ValidateMeshSingleUVSet(pyblish.api.InstancePlugin):
-    """Ensure no multiple UV sets exist for each polygon mesh"""
-
-    order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['model', 'pointcache']
-    hosts = ['maya']
-    category = 'uv'
-    optional = True
-    version = (0, 1, 0)
-    label = "Mesh Single UV Set"
-    actions = [SelectInvalidAction, RepairKeepOnlyCurrentUVs]
-
-    @staticmethod
-    def get_invalid(instance):
-        from maya import cmds
-
-        meshes = cmds.ls(instance, type='mesh', long=True)
-
-        invalid = []
-        for mesh in meshes:
-            uvSets = cmds.polyUVSet(mesh, 
-                                    query=True, 
-                                    allUVSets=True) or []
-
-            # ensure unique (sometimes maya will list 'map1' twice)
-            uvSets = set(uvSets)    
-
-            if len(uvSets) != 1:
-                invalid.append(mesh)
-
-        return invalid
-
-    def process(self, instance):
-        """Process all the nodes in the instance 'objectSet'"""
-
-        invalid = self.get_invalid(instance)
-
-        if invalid:
-            raise ValueError("Nodes found with multiple "
-                             "UV sets: {0}".format(invalid))
