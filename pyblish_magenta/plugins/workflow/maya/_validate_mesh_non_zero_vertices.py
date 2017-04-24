@@ -2,7 +2,7 @@ import pyblish.api
 import pyblish_magenta.api
 import pyblish_maya
 
-from pyblish_magenta.action import SelectInvalidAction
+from pyblish_magenta.action import SelectInvalidAction, RepairAction
 
 from maya import cmds
 
@@ -22,7 +22,7 @@ class ValidateMeshNonZeroVertices(pyblish.api.Validator):
     category = 'geometry'
     version = (0, 1, 0)
     label = 'Mesh Non Zero Vertices'
-    actions = [SelectInvalidAction]
+    actions = [SelectInvalidAction, RepairAction]
 
     _tolerance = 1e-8
 
@@ -56,10 +56,11 @@ class ValidateMeshNonZeroVertices(pyblish.api.Validator):
             raise RuntimeError("Meshes found with non-zero vertices: "
                                "{0}".format(invalid))
 
-    def repair(self, instance):
+    @classmethod
+    def repair(cls, instance):
         """Repair the meshes by 'baking' offsets into the input mesh"""
-        meshes = cmds.ls(instance, type='mesh', long=True)
-        invalid = [mesh for mesh in meshes if self.is_invalid(mesh)]
+
+        invalid = cls.get_invalid(instance)
 
         # TODO: Find a better way to reset values whilst preserving offsets
         with pyblish_maya.maintained_selection():

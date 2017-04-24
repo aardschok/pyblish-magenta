@@ -1,5 +1,6 @@
 import pyblish.api
 import pyblish_magenta.api
+from pyblish_magenta.action import RepairAction, SelectInvalidAction
 import maya.cmds as cmds
 
 
@@ -41,8 +42,10 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     category = 'cleanup'
     version = (0, 1, 0)
     label = 'No Empty/Null Transforms'
+    actions = [RepairAction, SelectInvalidAction]
 
-    def _get_invalid(self, instance):
+    @staticmethod
+    def get_invalid(instance):
         """Return invalid transforms in instance"""
 
         transforms = cmds.ls(instance, type='transform', long=True)
@@ -56,19 +59,20 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
 
     def process(self, instance):
         """Process all the transform nodes in the instance """
-        invalid = self._get_invalid(instance)
+        invalid = self.get_invalid(instance)
                 
         if invalid:
             raise ValueError("Empty transforms found: {0}".format(invalid))
-                
-    def repair(self, instance):
+
+    @classmethod
+    def repair(cls, instance):
         """Delete all null transforms.
 
         Note: If the node is used elsewhere (eg. connection to attributes or
         in history) deletion might mess up things.
 
         """
-        invalid = self._get_invalid(instance)
+        invalid = cls.get_invalid(instance)
         
         if invalid:
             cmds.delete(invalid)

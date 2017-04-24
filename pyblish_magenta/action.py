@@ -2,6 +2,48 @@
 import pyblish.api
 
 
+def _get_errored_instances_from_context(context):
+
+    instances = list()
+    for result in context.data["results"]:
+
+        if result["instance"] is None:
+            # When instance is None we are on the "context" result
+            continue
+
+        if result["error"]:
+            instances.append(result["instance"])
+
+    return instances
+
+
+class RepairAction(pyblish.api.Action):
+    """Repairs the action
+
+    To retrieve the invalid nodes this assumes a static `repair(instance)`
+    method is available on the plugin.
+
+    """
+    label = "Repair"
+    on = "failed"  # This action is only available on a failed plug-in
+    icon = "wrench"  # Icon from Awesome Icon
+
+    def process(self, context, plugin):
+
+        if not hasattr(plugin, "repair"):
+            raise RuntimeError("Plug-in does not have repair method.")
+
+        # Get the errored instances
+        self.log.info("Finding failed instances..")
+        errored_instances = _get_errored_instances_from_context(context)
+
+        # Apply pyblish.logic to get the instances for the plug-in
+        instances = pyblish.api.instances_by_plugin(errored_instances, plugin)
+
+        for instance in instances:
+            plugin.repair(instance)
+
+
 class SelectInvalidAction(pyblish.api.Action):
     """Select invalid nodes in Maya when plug-in failed.
 
@@ -16,14 +58,7 @@ class SelectInvalidAction(pyblish.api.Action):
     def process(self, context, plugin):
         from maya import cmds
 
-        # Get the errored instances
-        self.log.info("Finding failed instances..")
-        errored_instances = []
-        for result in context.data["results"]:
-            if result["error"] is not None and result["instance"] is not None:
-                if result["error"]:
-                    instance = result["instance"]
-                    errored_instances.append(instance)
+        errored_instances = _get_errored_instances_from_context(context)
 
         # Apply pyblish.logic to get the instances for the plug-in
         instances = pyblish.api.instances_by_plugin(errored_instances, plugin)

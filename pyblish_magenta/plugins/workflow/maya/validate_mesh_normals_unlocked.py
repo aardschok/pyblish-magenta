@@ -2,7 +2,10 @@ import pyblish.api
 import pyblish_magenta.api
 from maya import cmds
 
-from pyblish_magenta.action import SelectInvalidAction
+from pyblish_magenta.action import (
+    SelectInvalidAction,
+    RepairAction
+)
 
 
 class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
@@ -19,7 +22,7 @@ class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
     category = 'geometry'
     version = (0, 1, 0)
     label = 'Mesh Normals Unlocked'
-    actions = [SelectInvalidAction]
+    actions = [SelectInvalidAction, RepairAction]
     optional = True
 
     @staticmethod
@@ -51,14 +54,9 @@ class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
             raise ValueError("Meshes found with "
                              "locked normals: {0}".format(invalid))
 
-    def repair(self, instance):
-        """Unlocks all normals on the meshes in this instance.
-
-        The `repair` is deprecated in Pyblish.
-
-        """
-
-        meshes = cmds.ls(instance, type='mesh', long=True)
-        for mesh in meshes:
-            if self.has_locked_normals(mesh):
-                cmds.polyNormalPerVertex(mesh, unFreezeNormal=True)
+    @classmethod
+    def repair(cls, instance):
+        """Unlocks all normals on the meshes in this instance."""
+        invalid = cls.get_invalid(instance)
+        for mesh in invalid:
+            cmds.polyNormalPerVertex(mesh, unFreezeNormal=True)

@@ -1,6 +1,7 @@
 import pyblish.api
 import pyblish_magenta.api
 from maya import cmds
+from pyblish_magenta.action import SelectInvalidAction
 
 
 class ValidateNoUnknownNodes(pyblish.api.InstancePlugin):
@@ -17,14 +18,17 @@ class ValidateNoUnknownNodes(pyblish.api.InstancePlugin):
     order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model', 'layout', 'rig']
     hosts = ['maya']
-    category = 'cleanup'
     optional = True
-    version = (0, 1, 0)
     label = "Unknown Nodes"
+    actions = [SelectInvalidAction]
+
+    @staticmethod
+    def get_invalid(instance):
+        return cmds.ls(instance, type='unknown')
 
     def process(self, instance):
         """Process all the nodes in the instance"""
 
-        unknown_nodes = cmds.ls(instance, type='unknown')
-        if unknown_nodes:
-            raise ValueError("Unknown nodes found: {0}".format(unknown_nodes))
+        invalid = self.get_invalid(instance)
+        if invalid:
+            raise ValueError("Unknown nodes found: {0}".format(invalid))

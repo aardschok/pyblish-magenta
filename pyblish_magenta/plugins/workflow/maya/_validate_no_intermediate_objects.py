@@ -1,5 +1,10 @@
 import pyblish.api
 import pyblish_magenta.api
+from pyblish_magenta.action import (
+    SelectInvalidAction,
+    RepairAction
+)
+
 from maya import cmds
 
 
@@ -9,9 +14,17 @@ class ValidateNoIntermediateObjects(pyblish.api.InstancePlugin):
     order = pyblish_magenta.api.ValidateContentsOrder
     families = ['model']
     hosts = ['maya']
-    category = 'geometry'
-    version = (0, 1, 0)
     label = "No Intermediate Objects"
+    actions = [SelectInvalidAction, RepairAction]
+
+    @staticmethod
+    def get_invalid(instance):
+
+        intermediates = cmds.ls(instance,
+                                shapes=True,
+                                intermediateObjects=True,
+                                long=True)
+        return intermediates
 
     def process(self, instance):
         """Process all the intermediateObject nodes in the instance"""
@@ -22,14 +35,13 @@ class ValidateNoIntermediateObjects(pyblish.api.InstancePlugin):
         if intermediate_objects:
             raise ValueError("Intermediate objects found: "
                              "{0}".format(intermediate_objects))
-                
-    def repair(self, instance):
+
+    @staticmethod
+    def repair(instance):
         """Delete all intermediateObjects"""
-        intermediate_objects = cmds.ls(instance,
-                                       shapes=True,
-                                       intermediateObjects=True,
-                                       long=True)
-        if intermediate_objects:
-            future = cmds.listHistory(intermediate_objects, future=True)
+
+        invalid = ValidateNoIntermediateObjects.get_invalid(instance)
+        if invalid:
+            future = cmds.listHistory(invalid, future=True)
             cmds.delete(future, ch=True)
-            cmds.delete(intermediate_objects)
+            cmds.delete(invalid)

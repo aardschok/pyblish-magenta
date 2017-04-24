@@ -50,6 +50,7 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     category = 'geometry'
     label = 'Mesh Has UVs'
     actions = [SelectInvalidAction]
+    optional = True
 
     @classmethod
     def get_invalid(cls, instance):
