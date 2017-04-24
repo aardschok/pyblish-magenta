@@ -28,15 +28,9 @@ class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
     @staticmethod
     def has_locked_normals(mesh):
         """Return whether a mesh node has locked normals"""
-
-        mesh_vertexface = cmds.polyListComponentConversion(mesh,
-                                                           toVertexFace=True)
-        locked_normals = cmds.polyNormalPerVertex(mesh_vertexface, q=1,
-                                                  freezeNormal=True)
-        if any(locked_normals):
-            return True
-        else:
-            return False
+        return any(cmds.polyNormalPerVertex(mesh + ".vtxFace[*][*]",
+                                            query=True,
+                                            freezeNormal=True))
 
     @classmethod
     def get_invalid(cls, instance):
