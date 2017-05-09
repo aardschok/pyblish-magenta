@@ -53,8 +53,8 @@ class ValidateMeshSingleUVSet(pyblish.api.InstancePlugin):
         for mesh in cls.get_invalid(instance):
             cls._repair_mesh(mesh)
 
-    @staticmethod
-    def _repair_mesh(mesh):
+    @classmethod
+    def _repair_mesh(cls, mesh):
         """Process a single mesh, deleting other UV sets than the active one.
 
         Keep only current UV set and ensure it's the default 'map1'
@@ -109,19 +109,18 @@ class ValidateMeshSingleUVSet(pyblish.api.InstancePlugin):
             for uvSet in deleteUVSets:
                 cmds.polyUVSet(mesh, delete=True, uvSet=uvSet)
         except RuntimeError, e:
-            self.log.warning('uvSet: {0} - '
-                             'Error: {1}'.format(uvSet, e))
+            cls.log.warning('uvSet: {0} - '
+                            'Error: {1}'.format(uvSet, e))
 
-            # Delete from end to avoid shifting indices
             indices = cmds.getAttr('{0}.uvSet'.format(mesh),
                                    multiIndices=True)
-            indices = reversed(indices)
+            if not indices:
+                cls.log.warning("No uv set found indices for: {0}".format(mesh))
+                return
 
-            # Skip first
-            it = iter(indices)
-            next(it)
-
-            # Remove the indices in the attribute
-            for i in it:
+            # Delete from end to avoid shifting indices
+            # and remove the indices in the attribute
+            indices = reversed(indices[1:])
+            for i in indices:
                 attr = '{0}.uvSet[{1}]'.format(mesh, i)
                 cmds.removeMultiInstance(attr, b=True)
