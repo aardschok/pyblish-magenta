@@ -3,11 +3,19 @@ import copy
 
 
 class CollectMetadata(pyblish.api.ContextPlugin):
-    """Collect metadata about current asset
+    """Transfer context metadata to the instance.
+    
+    This applies a copy of the `context.data['metadata']` to the
+    `instance.data['metadata']` for the following metadata:
+    
+    Provides:
+        {
+            "topic": "topic",
+            "author": "user",
+            "date": "date",
+            "filename": "currentFile"
+        }
 
-    Skips data that is not found in the context with the mapping as used
-    in the `mappings` dict. Other collectors can retrieve this data for the
-    context to keep this somewhat generic for pipelines.
 
     """
     order = pyblish.api.CollectorOrder + 0.2
@@ -29,6 +37,6 @@ class CollectMetadata(pyblish.api.ContextPlugin):
 
         for instance in context:
             instance_metadata = copy.deepcopy(metadata)
-            instance.set_data("metadata", instance_metadata)
+            instance.data["metadata"] = instance_metadata
 
         self.log.info("Collected {0}".format(metadata))
