@@ -1,4 +1,3 @@
-import os
 import pyblish.api
 
 
@@ -7,7 +6,12 @@ class CollectMetadataMaya(pyblish.api.ContextPlugin):
     order = pyblish.api.CollectorOrder + 0.21
     label = "Maya Metadata"
     hosts = ["maya"]
-    families = ["model", "rig", "pointcache", "layout", "look", "package"]
+    families = ["colorbleed.model"
+              , "colorbleed.rig"
+              , "colorbleed.pointcache"
+              , "colorbleed.layout"
+              , "colorbleed.look"
+              , "colorbleed.package"]
 
     def process(self, context):
         from maya import cmds
@@ -17,8 +21,8 @@ class CollectMetadataMaya(pyblish.api.ContextPlugin):
         # Get only valid top level reference nodes
         # This makes it easier than using `cmds.ls` since it lists only
         # top level references, and skips sharedReferenceNode.
-        ref_files = cmds.file(q=1, reference=1)
-        ref_nodes = [cmds.file(x, q=1, referenceNode=True) for x in ref_files]
+        ref_files = cmds.file(query=True, reference=True)
+        ref_nodes = [cmds.file(x, query=True, referenceNode=True) for x in ref_files]
 
         references = dict()
         for reference in ref_nodes:
@@ -55,7 +59,7 @@ class CollectMetadataMaya(pyblish.api.ContextPlugin):
             userattrs = dict()
             for attr in cmds.listAttr(object_set, userDefined=True):
                 try:
-                    value = cmds.getAttr(object_set + "." + attr)
+                    value = cmds.getAttr("%s.%s" % (object_set, attr))
                 except RuntimeError:
                     continue
 

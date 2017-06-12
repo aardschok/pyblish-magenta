@@ -14,10 +14,10 @@ class CollectMayaUnits(pyblish.api.ContextPlugin):
     def process(self, context):
 
         # Get the current linear units
-        units = cmds.currentUnit(q=1, linear=1)
+        units = cmds.currentUnit(query=True, linear=True)
 
         # Get the current angular units ('deg' or 'rad')
-        units_angle = cmds.currentUnit(q=1, angle=1)
+        units_angle = cmds.currentUnit(query=True, angle=True)
 
         # Get the current time units
         # Using the mel command is simpler than using
