@@ -9,7 +9,7 @@ class ExtractMayaAscii(pyblish_magenta.api.Extractor):
 
     label = "Maya ASCII"
     hosts = ["maya"]
-    families = ["rig"]
+    families = ["colorbleed.rig"]
     optional = True
 
     def process(self, instance):

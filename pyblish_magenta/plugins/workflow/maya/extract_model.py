@@ -21,7 +21,7 @@ class ExtractModel(pyblish_magenta.api.Extractor):
 
     label = "Model (Maya ASCII)"
     hosts = ["maya"]
-    families = ["model"]
+    families = ["colorbleed.model"]
     optional = True
 
     def process(self, instance):
@@ -67,5 +67,4 @@ class ExtractModel(pyblish_magenta.api.Extractor):
                                   expressions=False,
                                   constructionHistory=False)
 
-        self.log.info("Extracted instance '{0}' to: {1}".format(
-            instance.name, path))
+        self.log.info("Extracted instance '%s' to: %s" % (instance.name, path))

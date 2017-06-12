@@ -24,40 +24,50 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
     the extracted content to solely what was Collected into the instance.
 
     Arguments:
+
         startFrame (float): Start frame of output. Ignored if `frameRange`
             provided.
+
         endFrame (float): End frame of output. Ignored if `frameRange`
             provided.
+
         frameRange (str): Frame range in the format of "startFrame endFrame".
             Overrides `startFrame` and `endFrame` arguments.
+
         dataFormat (str): The data format to use for the cache,
                           defaults to "ogawa"
+
         verbose (bool): When on, outputs frame number information to the
             Script Editor or output window during extraction.
+
         noNormals (bool): When on, normal data from the original polygon
             objects is not included in the exported Alembic cache file.
+
         renderableOnly (bool): When on, any non-renderable nodes or hierarchy,
             such as hidden objects, are not included in the Alembic file.
             Defaults to False.
+
         stripNamespaces (bool): When on, any namespaces associated with the
             exported objects are removed from the Alembic file. For example, an
             object with the namespace taco:foo:bar appears as bar in the
             Alembic file.
+
         uvWrite (bool): When on, UV data from polygon meshes and subdivision
             objects are written to the Alembic file. Only the current UV map is
             included.
+
         worldSpace (bool): When on, the top node in the node hierarchy is
             stored as world space. By default, these nodes are stored as local
             space. Defaults to False.
+
         eulerFilter (bool): When on, X, Y, and Z rotation data is filtered with
             an Euler filter. Euler filtering helps resolve irregularities in
             rotations especially if X, Y, and Z rotations exceed 360 degrees.
             Defaults to True.
-
     """
 
     label = "Alembic"
-    families = ["model", "pointcache", "proxy"]
+    families = ["colorbleed.model", "colorbleed.pointcache", "colorbleed.proxy"]
     optional = True
 
     @property
@@ -112,8 +122,8 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
 
         from maya import cmds
 
-        start_frame = cmds.playbackOptions(q=True, animationStartTime=True)
-        end_frame = cmds.playbackOptions(q=True, animationEndTime=True)
+        start_frame = cmds.playbackOptions(query=True, animationStartTime=True)
+        end_frame = cmds.playbackOptions(query=True, animationEndTime=True)
 
         return {
             "startFrame": start_frame,
@@ -132,7 +142,7 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
         temp_dir = self.temp_dir(instance)
         # parent_dir = os.path.join(temp_dir, instance.data("name"))
         parent_dir = temp_dir
-        filename = "{0}.abc".format(instance.name)
+        filename = "%s.abc" % instance.name
         path = os.path.join(parent_dir, filename)
 
         # Alembic Exporter requires forward slashes
@@ -143,9 +153,9 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
         options = self.parse_overrides(instance, options)
 
         job_str = self.parse_options(options)
-        job_str += ' -file "{0}"'.format(path)
+        job_str += ' -file "%s"' % path
 
-        self.log.info("Extracting alembic to: {0}".format(path))
+        self.log.info('Extracting alembic to:  "%s"' % path)
 
         verbose = instance.data('verbose', False)
         if verbose:
@@ -215,11 +225,11 @@ class ExtractAlembic(pyblish_magenta.api.Extractor):
         for key, value in options.iteritems():
             if isinstance(value, (list, tuple)):
                 for entry in value:
-                    job_args.append("-{0} {1}".format(key, entry))
+                    job_args.append("-%s %s" % (key, entry))
             elif isinstance(value, bool):
-                job_args.append("-{0}".format(key))
+                job_args.append("%s" % key)
             else:
-                job_args.append("-{0} {1}".format(key, value))
+                job_args.append("-%s %s" % (key, value))
 
         job_str = " ".join(job_args)
 

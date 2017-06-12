@@ -16,8 +16,8 @@ class ValidateNoUnknownNodes(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model', 'layout', 'rig']
     hosts = ['maya']
+    families = ['colorbleed.model', 'colorbleed.layout', 'colorbleed.rig']
     optional = True
     label = "Unknown Nodes"
     actions = [SelectInvalidAction]

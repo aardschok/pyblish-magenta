@@ -17,8 +17,8 @@ class ValidateMeshNoNegativeScale(pyblish.api.Validator):
     """
 
     order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['proxy', 'rig', 'model']
     hosts = ['maya']
+    families = ['colorbleed.proxy', 'colorbleed.rig', 'colorbleed.model']
     label = 'Mesh No Negative Scale'
     actions = [SelectInvalidAction]
 

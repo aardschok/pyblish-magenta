@@ -13,7 +13,7 @@ class ValidateRigContents(pyblish.api.InstancePlugin):
 
     order = pyblish_magenta.api.ValidateContentsOrder
     label = "Rig Contents"
-    families = ["rig"]
+    families = ["colorbleed.rig"]
     hosts = ["maya"]
 
     def process(self, instance):

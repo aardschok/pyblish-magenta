@@ -25,11 +25,11 @@ def len_flattened(components):
     """
     assert isinstance(components, (list, tuple))
     n = 0
+    pattern = re.compile("\[([0-9]+):([0-9]+)\]")
     for c in components:
-        match = re.search("\[([0-9]+):([0-9]+)\]", c)
+        match = pattern.match(c)
         if match:
-            start, end = match.groups()
-            n += int(end) - int(start) + 1
+            n += int(match.group(1)) - int(match.group(2)) + 1
         else:
             n += 1
     return n
@@ -55,8 +55,8 @@ class ValidateMeshVerticesHaveEdges(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'geometry'
     label = 'Mesh Vertices Have Edges'
     actions = [SelectInvalidAction]
@@ -70,7 +70,7 @@ class ValidateMeshVerticesHaveEdges(pyblish.api.InstancePlugin):
             num_vertices = cmds.polyEvaluate(mesh, vertex=True)
 
             # Vertices from all edges
-            edges = mesh + ".e[*]"
+            edges = "%s.e[*]" % mesh
             vertices = cmds.polyListComponentConversion(edges, toVertex=True)
             num_vertices_from_edges = len_flattened(vertices)
 
@@ -82,7 +82,6 @@ class ValidateMeshVerticesHaveEdges(pyblish.api.InstancePlugin):
     def process(self, instance):
 
         invalid = self.get_invalid(instance)
-
         if invalid:
             raise RuntimeError("Meshes found in instance with vertices that "
-                               "have no edges: {0}".format(invalid))
+                               "have no edges: %s" % invalid)

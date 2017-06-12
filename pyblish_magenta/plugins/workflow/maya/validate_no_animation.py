@@ -16,7 +16,7 @@ class ValidateNoAnimation(pyblish.api.Validator):
     order = pyblish_magenta.api.ValidateContentsOrder
     label = "No Animation"
     hosts = ["maya"]
-    families = ["model"]
+    families = ["colorbleed.model"]
     optional = True
     actions = [SelectInvalidAction]
 
@@ -29,7 +29,7 @@ class ValidateNoAnimation(pyblish.api.Validator):
         if not nodes:
             return []
 
-        curves = cmds.keyframe(nodes, q=1, name=True)
+        curves = cmds.keyframe(nodes, query=True, name=True)
         if curves:
             return list(set(cmds.listConnections(curves)))
 

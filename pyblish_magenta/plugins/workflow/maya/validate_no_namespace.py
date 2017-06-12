@@ -18,8 +18,8 @@ class ValidateNoNamespace(pyblish.api.InstancePlugin):
     """Ensure the nodes don't have a namespace"""
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'cleanup'
     version = (0, 1, 0)
     label = 'No Namespaces'

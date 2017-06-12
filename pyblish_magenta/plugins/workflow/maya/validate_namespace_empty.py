@@ -12,8 +12,8 @@ class ValidateNamespaceEmpty(pyblish.api.ContextPlugin):
     """
 
     order = pyblish_magenta.api.ValidateSceneOrder
-    families = ["model"]
     hosts = ["maya"]
+    families = ["colorbleed.model"]
     category = "scene"
     version = (0, 1, 0)
     label = "No Empty Namespaces"

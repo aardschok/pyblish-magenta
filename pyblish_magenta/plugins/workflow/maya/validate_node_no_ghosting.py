@@ -17,8 +17,8 @@ class ValidateNodeNoGhosting(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model', 'rig']
     hosts = ['maya']
+    families = ['colorbleed.model', 'colorbleed.rig']
     label = "No Ghosting"
     actions = [SelectInvalidAction]
 

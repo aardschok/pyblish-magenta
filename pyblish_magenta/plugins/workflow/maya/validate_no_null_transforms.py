@@ -37,8 +37,8 @@ class ValidateNoNullTransforms(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'cleanup'
     version = (0, 1, 0)
     label = 'No Empty/Null Transforms'

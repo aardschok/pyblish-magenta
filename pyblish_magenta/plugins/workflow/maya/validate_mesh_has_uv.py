@@ -45,8 +45,8 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'geometry'
     label = 'Mesh Has UVs'
     actions = [SelectInvalidAction]
@@ -75,13 +75,15 @@ class ValidateMeshHasUVs(pyblish.api.InstancePlugin):
                 # Note: Maya can save instanced UVs to `mayaAscii` but cannot
                 #       load this as instanced. So saving, opening and saving
                 #       again will lose this information.
-                uv_to_vertex = cmds.polyListComponentConversion(node + ".map[*]",
+                map_attr = "{}.map[*]".format(node)
+                uv_to_vertex = cmds.polyListComponentConversion(map_attr,
                                                                 toVertex=True)
                 uv_vertex_count = len_flattened(uv_to_vertex)
                 if uv_vertex_count < vertex:
                     invalid.append(node)
                 else:
-                    cls.log.warning("Node has instanced UV points: {0}".format(node))
+                    cls.log.warning("Node has instanced UV points: "
+                                    "{0}".format(node))
 
         return invalid
 

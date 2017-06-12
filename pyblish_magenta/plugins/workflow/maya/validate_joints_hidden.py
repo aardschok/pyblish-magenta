@@ -75,8 +75,8 @@ class ValidateJointsHidden(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['rig']
     hosts = ['maya']
+    families = ['colorbleed.rig']
     category = 'rig'
     version = (0, 1, 0)
     label = "Joints Hidden"
@@ -85,7 +85,7 @@ class ValidateJointsHidden(pyblish.api.InstancePlugin):
     @staticmethod
     def get_invalid(instance):
         joints = cmds.ls(instance, type='joint', long=True)
-        return [joint for joint in joints if is_visible(joint, displayLayer=True)]
+        return [j for j in joints if is_visible(j, displayLayer=True)]
 
     def process(self, instance):
         """Process all the nodes in the instance 'objectSet'"""

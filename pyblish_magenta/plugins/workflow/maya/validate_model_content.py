@@ -73,8 +73,8 @@ class ValidateModelContent(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ["model"]
     hosts = ["maya"]
+    families = ["colorbleed.model"]
     label = "Model Content"
     actions = [SelectInvalidAction]
 

@@ -17,8 +17,8 @@ class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
     """
 
     order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'geometry'
     version = (0, 1, 0)
     label = 'Mesh Normals Unlocked'
@@ -28,7 +28,7 @@ class ValidateMeshNormalsUnlocked(pyblish.api.Validator):
     @staticmethod
     def has_locked_normals(mesh):
         """Return whether a mesh node has locked normals"""
-        return any(cmds.polyNormalPerVertex(mesh + ".vtxFace[*][*]",
+        return any(cmds.polyNormalPerVertex("{}.vtxFace[*][*]".format(mesh),
                                             query=True,
                                             freezeNormal=True))
 

@@ -12,8 +12,8 @@ class ValidateMeshLaminaFaces(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'geometry'
     version = (0, 1, 0)
     label = 'Mesh Lamina Faces'

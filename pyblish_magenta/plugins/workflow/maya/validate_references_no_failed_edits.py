@@ -61,8 +61,8 @@ class ValidateReferencesNoFailedEdits(pyblish.api.InstancePlugin):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['layout']
     hosts = ['maya']
+    families = ['colorbleed.layout']
     category = 'layout'
     optional = True
     version = (0, 1, 0)

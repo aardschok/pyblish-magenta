@@ -13,8 +13,8 @@ class ValidateMeshNonManifold(pyblish.api.Validator):
     """
 
     order = pyblish_magenta.api.ValidateMeshOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     label = 'Mesh Non-Manifold Vertices/Edges'
     actions = [SelectInvalidAction]
 
