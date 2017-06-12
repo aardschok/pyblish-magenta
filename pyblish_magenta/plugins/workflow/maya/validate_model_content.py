@@ -98,7 +98,8 @@ class ValidateModelContent(pyblish.api.InstancePlugin):
         if len(assemblies) != 1:
             cls.log.error("Must have exactly one top group")
             if len(assemblies) == 0:
-                cls.log.warning("No top group found. (Are there objects in the instance?)")
+                cls.log.warning("No top group found. "
+                                "(Are there objects in the instance?)")
             return assemblies or True
 
         if not valid:

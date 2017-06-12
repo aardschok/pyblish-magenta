@@ -23,6 +23,8 @@ class CollectInstanceMetadata(pyblish.api.InstancePlugin):
 
     def process(self, instance):
 
+        verbose = instance.data.get("verbose", False)
+
         metadata = instance.data.get("metadata", dict())
         for key, source in self.mapping.iteritems():
             if source in instance.data:
@@ -31,4 +33,5 @@ class CollectInstanceMetadata(pyblish.api.InstancePlugin):
         # Store metadata
         instance.data["metadata"] = metadata
 
-        self.log.info("Collected {0}".format(metadata))
+        if verbose:
+            self.log.info("Collected {0}".format(metadata))

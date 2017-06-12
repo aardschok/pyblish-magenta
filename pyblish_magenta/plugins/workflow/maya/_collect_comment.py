@@ -3,7 +3,7 @@ from maya import cmds
 
 
 class CollectComment(pyblish.api.InstancePlugin):
-    """Collect comments for the instances in Maya.
+    """Collect comment for the current context
 
     This adds the `comment` family to any of the instances
     when they have some content in the "notes" area
