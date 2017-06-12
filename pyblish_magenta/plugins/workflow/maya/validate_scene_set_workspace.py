@@ -27,8 +27,8 @@ class ValidateSceneSetWorkspace(pyblish.api.ContextPlugin):
     """Validate the scene is inside the currently set Maya workspace"""
 
     order = pyblish_magenta.api.ValidatePipelineOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'scene'
     version = (0, 1, 0)
     label = 'Maya Workspace Set'

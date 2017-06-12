@@ -28,8 +28,8 @@ class ValidateTransformNamingSuffix(pyblish.api.Validator):
     """
 
     order = pyblish_magenta.api.ValidateContentsOrder
-    families = ['model']
     hosts = ['maya']
+    families = ['colorbleed.model']
     category = 'cleanup'
     optional = True
     version = (0, 1, 0)

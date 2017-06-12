@@ -7,7 +7,10 @@ class ValidateUnitsAngular(pyblish.api.ContextPlugin):
 
     order = pyblish_magenta.api.ValidateSceneOrder
     label = "Units (angular)"
-    families = ["rig", "model", "pointcache", "curves"]
+    families = ["colorbleed.rig",
+                "colorbleed.model",
+                "colorbleed.pointcache",
+                "colorbleed.curves"]
 
     def process(self, context):
         units = context.data('angularUnits')

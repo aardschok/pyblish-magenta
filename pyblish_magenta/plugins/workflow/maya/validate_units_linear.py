@@ -7,11 +7,14 @@ class ValidateUnitsLinear(pyblish.api.ContextPlugin):
 
     order = pyblish_magenta.api.ValidateSceneOrder
     label = "Units (linear)"
-    families = ["rig", "model", "pointcache", "curves"]
+    families = ["colorbleed.rig",
+                "colorbleed.model",
+                "colorbleed.pointcache",
+                "colorbleed.curves"]
 
     def process(self, context):
         units = context.data('linearUnits')
 
         self.log.info('Units (linear): {0}'.format(units))
-        assert units and units == 'cm', (
-            "Scene linear units must be centimeters")
+        assert units and units == 'cm', ("Scene linear units must "
+                                         "be centimeters")
