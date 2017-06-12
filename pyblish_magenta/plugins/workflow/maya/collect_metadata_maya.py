@@ -53,7 +53,7 @@ class CollectMetadataMaya(pyblish.api.ContextPlugin):
             object_set = instance.data['objSetName']
 
             if not cmds.objExists(object_set):
-                self.log.info("{0} is not a Maya node".format(object_set))
+                self.log.info("%s is not a Maya node" % object_set)
                 continue
 
             userattrs = dict()
